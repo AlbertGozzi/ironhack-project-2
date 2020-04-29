@@ -33,27 +33,27 @@ const initialEditorValue = [
   },
 ];
 
-const groupData = {};
+const documentsData = {};
 
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
 
-    socket.on('group-id', (groupId) => {
+    socket.on('doc-id', (docId) => {
         console.log(`---`);
-        console.log(`New user in group [${groupId}]: ${socket.id}`);
-        if (!(groupId in groupData)) {
-            console.log('First user in group');
-            groupData[groupId] = initialEditorValue;
+        console.log(`New user in document [${docId}]: ${socket.id}`);
+        if (!(docId in documentsData)) {
+            console.log('First user in document');
+            documentsData[docId] = initialEditorValue;
         }
-        console.log(`Sending initial value ${JSON.stringify(groupData[groupId])}`);
+        console.log(`Sending initial value ${JSON.stringify(documentsData[docId])}`);
         console.log(`---`);
-        io.to(socket.id).emit(`initial-value-${groupId}`, groupData[groupId]);
+        io.to(socket.id).emit(`initial-value-${docId}`, documentsData[docId]);
     });
 
     socket.on('new-operations', (data) => {
-        groupData[data.groupId] = data.value;
-        console.log(`Change in group [${data.groupId}]: ${JSON.stringify(groupData[data.groupId])}`);
-        io.emit(`new-remote-operations-${data.groupId}`, data);
+        documentsData[data.docId] = data.value;
+        console.log(`Change in document [${data.docId}]: ${JSON.stringify(documentsData[data.docId])}`);
+        io.emit(`new-remote-operations-${data.docId}`, data);
     });
 
     socket.on('disconnect', (reason) => {

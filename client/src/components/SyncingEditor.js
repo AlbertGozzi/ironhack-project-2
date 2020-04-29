@@ -3,7 +3,7 @@ import { Editor, Transforms} from 'slate';
 import { Slate, Editable, useSlate } from 'slate-react';
 import { useSelected, useFocused } from 'slate-react';
 import isHotkey from 'is-hotkey';
-import { css } from 'emotion'
+import { css } from 'emotion';
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 const HOTKEYS = {
@@ -57,7 +57,7 @@ export const SyncingEditor = (props) => {
                 editorId: props.socket.id, 
                 ops: ops,
                 value: value,
-                groupId: props.groupId
+                docId: props.docId
               })
             }      
           }

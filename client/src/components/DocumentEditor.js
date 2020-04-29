@@ -9,21 +9,21 @@ import { SyncingEditor } from './SyncingEditor';
 
 const socket = io('');
 
-export const GroupEditor = (props) => {
+export const DocumentEditor = (props) => {
     const [value, setValue] = useState([]);
     const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
-    const groupId = props.match.params.id;
+    const docId = props.match.params.id;
 
     useEffect(() => {
         console.log("Mounting...");
-        socket.emit('group-id', groupId);
+        socket.emit('doc-id', docId);
       
-        socket.on(`initial-value-${groupId}`, (value) => {
+        socket.on(`initial-value-${docId}`, (value) => {
           console.log('Initial value received');
           setValue(value);
         });
     
-        socket.on(`new-remote-operations-${groupId}`, ({editorId, ops, value}) => {
+        socket.on(`new-remote-operations-${docId}`, ({editorId, ops, value}) => {
           if (socket.id !== editorId) {
             console.log('Receiving operation');
             try {
@@ -44,24 +44,24 @@ export const GroupEditor = (props) => {
     
         return () => {
           console.log("Unmounting...");
-          socket.off(`new-remote-operations-${groupId}`);
+          socket.off(`new-remote-operations-${docId}`);
           socket.disconnect();
         };
     }, []);
     
     return (
         <div className="main">
-            <h3 className="title">Document: {groupId}</h3>
+            <h3 className="title"><strong>Document: </strong>{docId}</h3>
             <section className ="navbar">
-                <NavLink to={`/group/${groupId}`}><h4>Main</h4></NavLink>
-                <NavLink to={`/group/${groupId}/theory`}><h4>Theory</h4></NavLink>
-                <NavLink to={`/group/${groupId}/practice`}><h4>Practice</h4></NavLink>
+                <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
+                <NavLink to={`/document/${docId}/theory`}><h4>Theory</h4></NavLink>
+                <NavLink to={`/document/${docId}/practice`}><h4>Practice</h4></NavLink>
             </section>
             <section>
-                <Route exact path={`/group/${groupId}`}>
-                    <SyncingEditor groupId={groupId} value={value} setValue={setValue} editor={editor} socket={socket}/>
+                <Route exact path={`/document/${docId}/main`}>
+                    <SyncingEditor docId={docId} value={value} setValue={setValue} editor={editor} socket={socket}/>
                 </Route>
-                <Route exact path={`/group/${groupId}/theory`}>
+                <Route exact path={`/document/${docId}/theory`}>
                     <section>
                         <h4 className="theoryTitle"> Theory Summary </h4>
                         <div className="theoryEditor">

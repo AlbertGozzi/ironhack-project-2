@@ -10,7 +10,7 @@ body {
 
 .main {
   margin: 0 auto;
-  width: 60%;
+  width: 70%;
   /* border: 1px solid red; */
 }
 
@@ -19,17 +19,31 @@ body {
 }
 
 .title {
+  margin-top: 1em;
   text-align: left;
+  font-weight: 400;
 }
 
 .navbar {
   display: flex;
 }
 
-.navbar > * {
+.navbar h4 {
   padding-right: 1em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.navbar a {
+  color: rgba(255, 255, 255, 0.25);
+  text-decoration: none;
+}
+
+a.active {
   color: rgba(255, 255, 255, 0.9);
-  /* text-decoration: none */
 }
 
 .toolbar, .editor, .theoryEditor {
@@ -51,7 +65,7 @@ body {
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
 }
 
 .theoryTitle {

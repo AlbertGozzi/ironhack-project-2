@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
-import { GroupEditor } from './components/GroupEditor';
+import { DocumentEditor } from './components/DocumentEditor';
 
 const App = () => {
   return (
@@ -11,10 +11,10 @@ const App = () => {
           path="/" 
           exact 
           render={() => {
-            return <Redirect to={`/group/Home`}/>;
+            return <Redirect to={`/document/sampledoc/main`}/>;
           }}
         />
-        <Route path="/group/:id" render={props => <GroupEditor {...props} />} />
+        <Route path="/document/:id" render={props => <DocumentEditor {...props} />} />
       </BrowserRouter>
 
     </div>   
