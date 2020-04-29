@@ -151,7 +151,7 @@ export const SyncingEditor = (props) => {
                     if (o) {
                       return (
                         o.type !== "set_selection" &&
-                        o.type !== "split_node" &&
+                        o.type !== "set_value" &&
                         !o.source
                       );
                     }
@@ -207,7 +207,7 @@ export const SyncingEditor = (props) => {
           <h4 className="theoryTitle"> Theory Summary </h4>
           {/* <div className="theoryEditor">
             <ul>{value.map((text,i) => {
-              if (text.children.length === 1) { return <li>{text.children[0].text}</li>}
+              if (text.children.length === 1) { return <li key={i}>{text.children[0].text}</li>}
               return <ol key={i}>{text.children.map((element, j) => {
                 return <li key={j}>{element.text}</li>;
               })}</ol>
