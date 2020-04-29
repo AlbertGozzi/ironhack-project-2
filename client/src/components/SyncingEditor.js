@@ -14,7 +14,7 @@ const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
   'mod+u': 'underline',
-  'mod+`': 'code',
+  // 'mod+`': 'code',
   'mod+p': 'theory'
 };
 const ELEMENT_TAGS = {
@@ -176,16 +176,15 @@ export const SyncingEditor = (props) => {
             }} 
           >
             <div className="toolbar">
-              <MarkButton format="bold" icon="B"/>
-              <MarkButton format="italic" icon="I"/>
-              <MarkButton format="underline" icon="U"/>
-              <MarkButton format="code" icon="Co"/>
-              <MarkButton format="theory" icon="T"/>
-              <BlockButton format="heading-one" icon="H1" />
-              <BlockButton format="heading-two" icon="H2" />
-              <BlockButton format="block-quote" icon="Q" />
-              <BlockButton format="numbered-list" icon="OL" />
-              <BlockButton format="bulleted-list" icon="UL" />
+              <MarkButton format="bold" icon="fas fa-bold"/>
+              <MarkButton format="italic" icon="fas fa-italic"/>
+              <MarkButton format="underline" icon="fas fa-underline"/>
+              <MarkButton format="theory" icon="fas fa-highlighter"/>
+              <BlockButton format="heading-one" icon="fas fa-heading" />
+              <BlockButton format="heading-two" icon="fas fa-heading" />
+              <BlockButton format="block-quote" icon="fas fa-quote-left" />
+              <BlockButton format="numbered-list" icon="fas fa-list-ol" />
+              <BlockButton format="bulleted-list" icon="fas fa-list" />
             </div>
             <Editable 
               className="editor" 
@@ -400,7 +399,7 @@ const BlockButton = ({ format, icon }) => {
         toggleBlock(editor, format)
       }}
     >
-      {icon}
+      <i className={icon}></i>
     </button>
   )
 }
@@ -415,8 +414,7 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format)
       }}
     >
-      <i className="fas fa-bold"></i>
-      {/* {icon} */}
+      <i className={icon}></i>
     </button>
   )
 }

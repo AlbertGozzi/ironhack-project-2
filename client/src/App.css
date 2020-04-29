@@ -37,11 +37,19 @@ body {
 .toolbarButton {
   height: 1.5em;
   width: 2em;
+
+  text-align: left;
+
+  border: 0;
+  margin: auto 0;
+  background: transparent;
+
   padding: 1px 0.2em;
+  color: darkgray;
 }
 
 .true {
-  font-weight: bold;
+  color: black;
 }
 
 .editor {
