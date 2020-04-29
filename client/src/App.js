@@ -11,7 +11,7 @@ const App = () => {
           path="/" 
           exact 
           render={() => {
-            return <Redirect to={`/group/Main`}/>;
+            return <Redirect to={`/group/Home`}/>;
           }}
         />
         <Route path="/group/:id" render={props => <GroupEditor {...props} />} />

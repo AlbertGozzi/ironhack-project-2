@@ -30,3 +30,5 @@ languages.forEach(language => {
     conjugate[language] = {};
     conjFile[language].template.forEach(conjugableVerb => conjugate[language][conjugableVerb._name] = conjugableVerb )
 });
+
+// console.log(JSON.stringify(conjugate['fr'][verbToConjugate['fr']['aller']]));

@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { createEditor, Editor, Transforms} from 'slate';
-import { Slate, Editable, withReact, useSlate } from 'slate-react';
-import { withHistory } from 'slate-history';
-import { jsx } from 'slate-hyperscript';
+import React, { useCallback } from 'react';
+import { Editor, Transforms} from 'slate';
+import { Slate, Editable, useSlate } from 'slate-react';
 import { useSelected, useFocused } from 'slate-react';
 import isHotkey from 'is-hotkey';
-import io from 'socket.io-client';
 import { css } from 'emotion'
 
-const socket = io('');
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -17,212 +13,82 @@ const HOTKEYS = {
   // 'mod+`': 'code',
   'mod+p': 'theory'
 };
-const ELEMENT_TAGS = {
-  A: el => ({ type: 'link', url: el.getAttribute('href') }),
-  BLOCKQUOTE: () => ({ type: 'quote' }),
-  H1: () => ({ type: 'heading-one' }),
-  H2: () => ({ type: 'heading-two' }),
-  H3: () => ({ type: 'heading-three' }),
-  H4: () => ({ type: 'heading-four' }),
-  H5: () => ({ type: 'heading-five' }),
-  H6: () => ({ type: 'heading-six' }),
-  IMG: el => ({ type: 'image', url: el.getAttribute('src') }),
-  LI: () => ({ type: 'list-item' }),
-  OL: () => ({ type: 'numbered-list' }),
-  P: () => ({ type: 'paragraph' }),
-  PRE: () => ({ type: 'code' }),
-  UL: () => ({ type: 'bulleted-list' }),
-}
-// COMPAT: `B` is omitted here because Google Docs uses `<b>` in weird ways.
-const TEXT_TAGS = {
-  CODE: () => ({ code: true }),
-  DEL: () => ({ strikethrough: true }),
-  EM: () => ({ italic: true }),
-  I: () => ({ italic: true }),
-  S: () => ({ strikethrough: true }),
-  STRONG: () => ({ bold: true }),
-  U: () => ({ underline: true }),
-}
-export const deserialize = el => {
-  if (el.nodeType === 3) {
-    return el.textContent
-  } else if (el.nodeType !== 1) {
-    return null
-  } else if (el.nodeName === 'BR') {
-    return '\n'
-  }
 
-  const { nodeName } = el
-  let parent = el
-
-  if (
-    nodeName === 'PRE' &&
-    el.childNodes[0] &&
-    el.childNodes[0].nodeName === 'CODE'
-  ) {
-    parent = el.childNodes[0]
-  }
-  const children = Array.from(parent.childNodes)
-    .map(deserialize)
-    .flat()
-
-  if (el.nodeName === 'BODY') {
-    return jsx('fragment', {}, children)
-  }
-
-  if (ELEMENT_TAGS[nodeName]) {
-    const attrs = ELEMENT_TAGS[nodeName](el)
-    return jsx('element', attrs, children)
-  }
-
-  if (TEXT_TAGS[nodeName]) {
-    const attrs = TEXT_TAGS[nodeName](el)
-    return children.map(child => jsx('text', attrs, child))
-  }
-
-  return children
-}
 
 export const SyncingEditor = (props) => {
-  const [value, setValue] = useState([]);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
-  const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
 
-  useEffect(() => {
-    console.log("Mounting...");
-    socket.emit('group-id', props.groupId);
-  
-    socket.once(`initial-value-${props.groupId}`, (value) => {
-      console.log('Initial value received');
-      setValue(value);
-    });
-
-    socket.on(`new-remote-operations-${props.groupId}`, ({editorId, ops, value}) => {
-      if (socket.id !== editorId) {
-        console.log('Receiving operation');
-        // ops.forEach(op => 
-        //   console.log(op)
-        // );
-        try {
-          console.log('Trying to apply operation - Remote');
-          ops.forEach(op => editor.apply(op));
-        } 
-        catch (err) {
-          console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
-          try { 
-            setValue(value);
+  return ( 
+    <div>
+      <Slate 
+        editor={props.editor} 
+        value={props.value}
+        onChange={value => {
+          console.log('Applied operation - Locally')
+          try {
+            props.setValue(value);
           }
           catch (err) {
             console.log(`Error. Too many operations at the same time! ${err}`)
           }
-        }
-      }
-    });
-
-    return () => {
-      socket.off(`new-remote-operations-${props.groupId}`);
-      socket.disconnect();
-    };
-  }, []);
-
-  return ( 
-    <div className='main'>
-        <section>
-          <Slate 
-            editor={editor} 
-            value={value}
-            onChange={value => {
-              console.log('Applied operation - Locally')
-              try { 
-                setValue(value);
-              }
-              catch (err) {
-                console.log(`Error. Too many operations at the same time! ${err}`)
-              }
-              let isRemoteOperation = [...editor.operations].map(op => op.source).join('').length !== 0;
-              if (!isRemoteOperation) {
-                // console.log(`Before transformation `);
-                // console.log(editor.operations);
-  
-                // Create object to emit
-                const ops = editor.operations
-                  .filter(o => {
-                    if (o) {
-                      return (
-                        o.type !== "set_selection" &&
-                        o.type !== "set_value" &&
-                        !o.source
-                      );
-                    }
-                    return false;
-                  })
-                  .map((o) => ({ ...o, source: socket.id }));  
-      
-                // console.log(`After transformation `);
-                // console.log(ops);
-  
-                // Emit object
-                if (ops.length && !isRemoteOperation) {
-                  console.log('Emitted operation')
-                  socket.emit('new-operations', {
-                    editorId: socket.id, 
-                    ops: ops,
-                    value: value,
-                    groupId: props.groupId
-                  })
-                }      
-              }
-            }} 
-          >
-            <div className="toolbar">
-              <MarkButton format="bold" icon="fas fa-bold"/>
-              <MarkButton format="italic" icon="fas fa-italic"/>
-              <MarkButton format="underline" icon="fas fa-underline"/>
-              <MarkButton format="theory" icon="fas fa-highlighter"/>
-              <BlockButton format="heading-one" icon="fas fa-heading" />
-              <BlockButton format="heading-two" icon="fas fa-heading" />
-              <BlockButton format="block-quote" icon="fas fa-quote-left" />
-              <BlockButton format="numbered-list" icon="fas fa-list-ol" />
-              <BlockButton format="bulleted-list" icon="fas fa-list" />
-            </div>
-            <Editable 
-              className="editor" 
-              renderElement={renderElement}
-              renderLeaf={renderLeaf}
-              onKeyDown={event => {
-                for (const hotkey in HOTKEYS) {
-                  if (isHotkey(hotkey, event)) {
-                    event.preventDefault()
-                    const mark = HOTKEYS[hotkey]
-                    toggleMark(editor, mark)
-                  }
+          let isRemoteOperation = [...props.editor.operations].map(op => op.source).join('').length !== 0;
+          if (!isRemoteOperation) {
+            // Create object to emit
+            const ops = props.editor.operations
+              .filter(o => {
+                if (o) {
+                  return (
+                    o.type !== "set_selection" &&
+                    o.type !== "set_value" &&
+                    !o.source
+                  );
                 }
-              }} 
-            />
-          </Slate>
-        </section>
-        <section>
-          <h4 className="theoryTitle"> Theory Summary </h4>
-          {/* <div className="theoryEditor">
-            <ul>{value.map((text,i) => {
-              if (text.children.length === 1) { return <li key={i}>{text.children[0].text}</li>}
-              return <ol key={i}>{text.children.map((element, j) => {
-                return <li key={j}>{element.text}</li>;
-              })}</ol>
-            })}</ul>
-          </div> */}
-          <div className="theoryEditor">
-            {value.map((text,i) => {
-              return <p key={i}>{text.children.map((element, j) => {
-                if (element.theory) {
-                  return <span key={j}>{element.text}</span>;
-                }
-                return '';
-              })}</p>
-            })}
-          </div>          
-        </section>
+                return false;
+              })
+              .map((o) => ({ ...o, source: props.socket.id }));  
+  
+            // console.log(ops);
+
+            // Emit object
+            if (ops.length && !isRemoteOperation) {
+              console.log('Emitted operation')
+              props.socket.emit('new-operations', {
+                editorId: props.socket.id, 
+                ops: ops,
+                value: value,
+                groupId: props.groupId
+              })
+            }      
+          }
+        }} 
+      >
+        <div className="toolbar">
+          <MarkButton format="bold" icon="fas fa-bold"/>
+          <MarkButton format="italic" icon="fas fa-italic"/>
+          <MarkButton format="underline" icon="fas fa-underline"/>
+          <MarkButton format="theory" icon="fas fa-highlighter"/>
+          <BlockButton format="heading-one" icon="fas fa-heading" />
+          <BlockButton format="heading-two" icon="fas fa-heading" />
+          <BlockButton format="block-quote" icon="fas fa-quote-left" />
+          <BlockButton format="numbered-list" icon="fas fa-list-ol" />
+          <BlockButton format="bulleted-list" icon="fas fa-list" />
+        </div>
+        <Editable 
+          className="editor" 
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          onKeyDown={event => {
+            for (const hotkey in HOTKEYS) {
+              if (isHotkey(hotkey, event)) {
+                event.preventDefault()
+                const mark = HOTKEYS[hotkey]
+                toggleMark(props.editor, mark)
+              }
+            }
+          }} 
+        />
+      </Slate>
     </div>
   );
 }
@@ -273,33 +139,6 @@ const isBlockActive = (editor, format) => {
 const isMarkActive = (editor, format) => {
   const marks = Editor.marks(editor)
   return marks ? marks[format] === true : false
-}
-
-const withHtml = editor => {
-  const { insertData, isInline, isVoid } = editor
-
-  editor.isInline = element => {
-    return element.type === 'link' ? true : isInline(element)
-  }
-
-  editor.isVoid = element => {
-    return element.type === 'image' ? true : isVoid(element)
-  }
-
-  editor.insertData = data => {
-    const html = data.getData('text/html')
-
-    if (html) {
-      const parsed = new DOMParser().parseFromString(html, 'text/html')
-      const fragment = deserialize(parsed.body)
-      Transforms.insertFragment(editor, fragment)
-      return
-    }
-
-    insertData(data)
-  }
-
-  return editor
 }
 
 const Element = props => {
