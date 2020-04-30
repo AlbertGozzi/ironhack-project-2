@@ -84,21 +84,52 @@ export const SyncingEditor = (props) => {
               }
             }
           }}
-          // onDOMBeforeInput={event => {
-          //   console.log(event.inputType)
-          //   switch (event.inputType) {
-          //     case 'formatBold':
-          //       return toggleFormat(props.editor, 'bold')
-          //     case 'formatItalic':
-          //       return toggleFormat(props.editor, 'italic')
-          //     case 'formatUnderline':
-          //       return toggleFormat(props.editor, 'underline')
-          //   }
-          // }} 
         />
       </Slate>
     </div>
   );
+}
+
+const HoveringToolbar = () => {
+  const ref = useRef()
+  const editor = useSlate()
+
+  useEffect(() => {
+    const el = ref.current
+    const { selection } = editor
+
+    if (!el) {
+      return
+    }
+
+    if (
+      !selection ||
+      !ReactEditor.isFocused(editor) ||
+      Range.isCollapsed(selection) ||
+      Editor.string(editor, selection) === ''
+    ) {
+      el.removeAttribute('style')
+      return
+    }
+
+    const domSelection = window.getSelection()
+    const domRange = domSelection.getRangeAt(0)
+    const rect = domRange.getBoundingClientRect()
+    el.style.opacity = 1
+    el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight}px`
+    el.style.left = `${rect.left +
+      window.pageXOffset -
+      el.offsetWidth / 2 +
+      rect.width / 2}px`
+  })
+
+  return (
+    <div ref={ref} className="hoveringMenu">
+      <HoverButton format="theory" label="Theory" />
+      <HoverButton format="verb" label="Verb" />
+      <HoverButton format="translate" label="Translate" />
+    </div>
+  )
 }
 
 const toggleBlock = (editor, format) => {
@@ -233,6 +264,14 @@ const Leaf = ({ attributes, children, leaf }) => {
     children = <span className="theory">{children}</span>
   }
 
+  if (leaf.verb) { 
+    children = <span className="verb">{children}</span>
+  }
+
+  if (leaf.translate) { 
+    children = <span className="translate">{children}</span>
+  }
+
   return <span {...attributes}>{children}</span>
 }
 
@@ -278,47 +317,5 @@ const HoverButton = ({ format, label }) => {
     >
       {label}
     </button>
-  )
-}
-
-const HoveringToolbar = () => {
-  const ref = useRef()
-  const editor = useSlate()
-
-  useEffect(() => {
-    const el = ref.current
-    const { selection } = editor
-
-    if (!el) {
-      return
-    }
-
-    if (
-      !selection ||
-      !ReactEditor.isFocused(editor) ||
-      Range.isCollapsed(selection) ||
-      Editor.string(editor, selection) === ''
-    ) {
-      el.removeAttribute('style')
-      return
-    }
-
-    const domSelection = window.getSelection()
-    const domRange = domSelection.getRangeAt(0)
-    const rect = domRange.getBoundingClientRect()
-    el.style.opacity = 1
-    el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight}px`
-    el.style.left = `${rect.left +
-      window.pageXOffset -
-      el.offsetWidth / 2 +
-      rect.width / 2}px`
-  })
-
-  return (
-    <div ref={ref} className="hoveringMenu">
-      <HoverButton format="theory" label="Theory" />
-      <HoverButton format="verb" label="Verb" />
-      <HoverButton format="translate" label="Translate" />
-    </div>
   )
 }

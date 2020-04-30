@@ -51,21 +51,33 @@ export const DocumentEditor = (props) => {
     }, []);
     
     return (
-        <div className="main">
-            <h3 className="title"><strong>Document: </strong>{docId}</h3>
-            <section className ="navbar">
-                <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
-                <NavLink to={`/document/${docId}/theory`}><h4>Theory</h4></NavLink>
-                <NavLink to={`/document/${docId}/verbpractice`}><h4>Verb Practice</h4></NavLink>
-            </section>
-            <section>
-                <Route exact path={`/document/${docId}/main`}>
-                  <SyncingEditor docId={docId} value={value} setValue={setValue} editor={editor} socket={socket}/>
-                </Route>
-                <Route exact path={`/document/${docId}/theory`}>
-                  <TheorySummary value={value} />
-                </Route>
-            </section>            
-        </div>
+        <div>
+          <div className="main">
+              <h3 className="title"><strong>Document: </strong>{docId}</h3>
+              <section className ="navbar">
+                  <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
+                  <NavLink to={`/document/${docId}/theory`}><h4>Theory</h4></NavLink>
+                  <NavLink to={`/document/${docId}/verbpractice`}><h4>Verb Practice</h4></NavLink>
+              </section>
+              <section>
+                  <Route exact path={`/document/${docId}/main`}>
+                    <SyncingEditor docId={docId} value={value} setValue={setValue} editor={editor} socket={socket}/>
+                  </Route>
+                  <Route exact path={`/document/${docId}/theory`}>
+                    <TheorySummary value={value} />
+                  </Route>
+              </section>            
+          </div>
+          <div className="rightPanel">
+            {value.map((text,i) => {
+              let textsToTranslate = text.children.filter((element) => element.translate);
+              return textsToTranslate.map(element => {
+                return <div className="translateCard">
+                  {element.text}
+                </div>
+              })
+            })}
+          </div>
+        </div>  
     );
 };

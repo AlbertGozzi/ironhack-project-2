@@ -10,12 +10,33 @@ body {
 
 .main {
   margin: 0 auto;
-  width: 65%;
-  /* border: 1px solid red; */
+  width: calc(60% - 2em);
+  /* border: 1px solid blue; */
+}
+
+.rightPanel {
+  color:rgba(255, 255, 255);
+
+  margin: 0 1em 0 0;
+
+  width: calc(20% - 1em);
+  position: fixed;
+  top: 8.3em;
+  right: 0;
+}
+
+.translateCard {
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 4px;
+  box-shadow: 0 8px 14px 0 rgba(60,60,60,0.09);
+
+  padding: 0.5em;
+
+  margin-bottom: 0.5em;
 }
 
 .main > * {
-  margin: auto 5%;
+  margin: auto 1em;
 }
 
 .title {
@@ -139,4 +160,12 @@ a.active {
 
 .theory {
   border: 2px solid #ffffb3;
+}
+
+.verb {
+  color: red;
+}
+
+.translate {
+  background: rgba(39, 41, 45, 0.1);
 }
