@@ -6,6 +6,7 @@ import { withHistory } from 'slate-history';
 import io from 'socket.io-client';
 import { withHtml } from './withHtml';
 import { SyncingEditor } from './SyncingEditor';
+import TheorySummary from './TheorySummary';
 
 const socket = io('');
 
@@ -55,26 +56,14 @@ export const DocumentEditor = (props) => {
             <section className ="navbar">
                 <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
                 <NavLink to={`/document/${docId}/theory`}><h4>Theory</h4></NavLink>
-                <NavLink to={`/document/${docId}/practice`}><h4>Practice</h4></NavLink>
+                <NavLink to={`/document/${docId}/verbpractice`}><h4>Verb Practice</h4></NavLink>
             </section>
             <section>
                 <Route exact path={`/document/${docId}/main`}>
-                    <SyncingEditor docId={docId} value={value} setValue={setValue} editor={editor} socket={socket}/>
+                  <SyncingEditor docId={docId} value={value} setValue={setValue} editor={editor} socket={socket}/>
                 </Route>
                 <Route exact path={`/document/${docId}/theory`}>
-                    <section>
-                        <h4 className="theoryTitle"> Theory Summary </h4>
-                        <div className="theoryEditor">
-                            {value.map((text,i) => {
-                            return <p key={i}>{text.children.map((element, j) => {
-                                if (element.theory) {
-                                return <span key={j}>{element.text}</span>;
-                                }
-                                return '';
-                            })}</p>
-                            })}
-                        </div>   
-                    </section>
+                  <TheorySummary value={value} />
                 </Route>
             </section>            
         </div>

@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
-import { Editor, Transforms} from 'slate';
-import { Slate, Editable, useSlate } from 'slate-react';
+import React, { useCallback, useRef, useEffect } from 'react';
+import { Editor, Transforms, Range} from 'slate';
+import { Slate, Editable, ReactEditor, useSlate } from 'slate-react';
 import { useSelected, useFocused } from 'slate-react';
 import isHotkey from 'is-hotkey';
 import { css } from 'emotion';
@@ -9,11 +9,8 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list']
 const HOTKEYS = {
   'mod+b': 'bold',
   'mod+i': 'italic',
-  'mod+u': 'underline',
-  // 'mod+`': 'code',
-  'mod+p': 'theory'
+  'mod+u': 'underline'
 };
-
 
 export const SyncingEditor = (props) => {
   const renderElement = useCallback(props => <Element {...props} />, []);
@@ -67,13 +64,13 @@ export const SyncingEditor = (props) => {
           <MarkButton format="bold" icon="fas fa-bold"/>
           <MarkButton format="italic" icon="fas fa-italic"/>
           <MarkButton format="underline" icon="fas fa-underline"/>
-          <MarkButton format="theory" icon="fas fa-highlighter"/>
           <BlockButton format="heading-one" icon="fas fa-heading" />
           <BlockButton format="heading-two" icon="fas fa-heading" />
           <BlockButton format="block-quote" icon="fas fa-quote-left" />
           <BlockButton format="numbered-list" icon="fas fa-list-ol" />
           <BlockButton format="bulleted-list" icon="fas fa-list" />
         </div>
+        <HoveringToolbar />
         <Editable 
           className="editor" 
           renderElement={renderElement}
@@ -86,7 +83,18 @@ export const SyncingEditor = (props) => {
                 toggleMark(props.editor, mark)
               }
             }
-          }} 
+          }}
+          // onDOMBeforeInput={event => {
+          //   console.log(event.inputType)
+          //   switch (event.inputType) {
+          //     case 'formatBold':
+          //       return toggleFormat(props.editor, 'bold')
+          //     case 'formatItalic':
+          //       return toggleFormat(props.editor, 'italic')
+          //     case 'formatUnderline':
+          //       return toggleFormat(props.editor, 'underline')
+          //   }
+          // }} 
         />
       </Slate>
     </div>
@@ -247,7 +255,7 @@ const MarkButton = ({ format, icon }) => {
   const editor = useSlate()
   return (
     <button
-      className={`toolbarButton ${isMarkActive(editor, format).toString()}`}
+      className={`toolbarButton toolbarButton${isMarkActive(editor, format).toString()}`}
       onMouseDown={event => {
         event.preventDefault()
         toggleMark(editor, format)
@@ -258,3 +266,59 @@ const MarkButton = ({ format, icon }) => {
   )
 }
 
+const HoverButton = ({ format, label }) => {
+  const editor = useSlate()
+  return (
+    <button
+      className={`hoverButton hoverButton${isMarkActive(editor, format).toString()}`}
+      onMouseDown={event => {
+        event.preventDefault()
+        toggleMark(editor, format)
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+
+const HoveringToolbar = () => {
+  const ref = useRef()
+  const editor = useSlate()
+
+  useEffect(() => {
+    const el = ref.current
+    const { selection } = editor
+
+    if (!el) {
+      return
+    }
+
+    if (
+      !selection ||
+      !ReactEditor.isFocused(editor) ||
+      Range.isCollapsed(selection) ||
+      Editor.string(editor, selection) === ''
+    ) {
+      el.removeAttribute('style')
+      return
+    }
+
+    const domSelection = window.getSelection()
+    const domRange = domSelection.getRangeAt(0)
+    const rect = domRange.getBoundingClientRect()
+    el.style.opacity = 1
+    el.style.top = `${rect.top + window.pageYOffset - el.offsetHeight}px`
+    el.style.left = `${rect.left +
+      window.pageXOffset -
+      el.offsetWidth / 2 +
+      rect.width / 2}px`
+  })
+
+  return (
+    <div ref={ref} className="hoveringMenu">
+      <HoverButton format="theory" label="Theory" />
+      <HoverButton format="verb" label="Verb" />
+      <HoverButton format="translate" label="Translate" />
+    </div>
+  )
+}
