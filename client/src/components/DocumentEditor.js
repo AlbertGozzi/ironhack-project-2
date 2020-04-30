@@ -7,6 +7,7 @@ import io from 'socket.io-client';
 import { withHtml } from './withHtml';
 import { SyncingEditor } from './SyncingEditor';
 import TheorySummary from './TheorySummary';
+import TranslationSideBar from './TranslationSideBar';
 
 const socket = io('');
 
@@ -69,14 +70,9 @@ export const DocumentEditor = (props) => {
               </section>            
           </div>
           <div className="rightPanel">
-            {value.map((text,i) => {
-              let textsToTranslate = text.children.filter((element) => element.translate);
-              return textsToTranslate.map(element => {
-                return <div className="translateCard">
-                  {element.text}
-                </div>
-              })
-            })}
+            <Route exact path={`/document/${docId}/main`}>
+              <TranslationSideBar value={value}/>
+            </Route>
           </div>
         </div>  
     );
