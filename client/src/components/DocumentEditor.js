@@ -8,6 +8,7 @@ import { withHtml } from './withHtml';
 import { SyncingEditor } from './SyncingEditor';
 import TheorySummary from './TheorySummary';
 import TranslationSideBar from './TranslationSideBar';
+import axios from 'axios';
 
 const socket = io('');
 
@@ -51,6 +52,16 @@ export const DocumentEditor = (props) => {
         };
     }, []);
     
+    // const displaySound = (text) => {
+    //   axios.get('https://translate.google.com/translate_tts?ie=UTF-8&tl=fr&client=tw-ob&q=bonjour')
+    //   .then(response => {
+    //     console.log(response);
+    //     return <audio controls>
+    //       <source src={response} type="audio/mp3"/>
+    //     </audio>
+    //   })
+    // }
+
     return (
         <div>
           <div className="main">
@@ -70,8 +81,9 @@ export const DocumentEditor = (props) => {
               </section>            
           </div>
           <div className="rightPanel">
+            {/* {displaySound()} */}
             <Route exact path={`/document/${docId}/main`}>
-              <TranslationSideBar value={value}/>
+              <TranslationSideBar docId={docId} value={value} socket={socket}/>
             </Route>
           </div>
         </div>  

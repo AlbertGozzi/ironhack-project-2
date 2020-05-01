@@ -149,7 +149,7 @@ a.active {
   color: rgb(26, 26, 26);
 }
 
-.editor p, .theoryEditor p {
+.editor p, .theoryEditor p, .translateCard p {
   margin-top: 0;
   margin-bottom: 0.2em;
 }
@@ -158,14 +158,12 @@ a.active {
   background-color: #ffffb3;
 }
 
-.theory {
-  border: 2px solid #ffffb3;
-}
-
 .verb {
-  color: red;
+  color:black;
+  font-style: italic;
 }
 
 .translate {
-  background: rgba(39, 41, 45, 0.1);
+  border: 1px solid rgba(39, 41, 45, 0.5);
+  border-radius: 4px;
 }
