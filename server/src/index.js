@@ -5,6 +5,9 @@ let path = require('path');
 let socketIO = require('socket.io');
 // Imports the Google Cloud client library
 const {Translate} = require('@google-cloud/translate').v2;
+// Local Imports
+const conjugator = require('./conjugate.js');
+const translator = require('./translate.js');
 
 // Renaming
 let app = express();
@@ -36,38 +39,6 @@ const initialEditorValue = [
 
 const documentsData = {};
 
-// Google translate
-const translate = new Translate();
-// async function listLanguages() {
-//     // Lists available translation language with their names in English (the default).
-//     const [languages] = await translate.getLanguages();
-  
-//     console.log('Languages:');
-//     languages.forEach(language => console.log(language));
-// }
-// listLanguages()
-
-async function translateTextWithModel(text, target) {
-  const options = {
-    // The target language, e.g. "ru"
-    to: target,
-    // Make sure your project is whitelisted.
-    // Possible values are "base" and "nmt"
-    model: 'nmt',
-  };
-
-  // Translates the text into the target language. "text" can be a string for
-  // translating a single piece of text, or an array of strings for translating
-  // multiple texts.
-  let [translations] = await translate.translate(text, options);
-  translations = Array.isArray(translations) ? translations : [translations];
-  console.log(`Log: ${translations[0]}`)
-  return translations[0];
-  // translations.forEach((translation, i) => {
-  //   console.log(`${text} => (${target}) ${translation}`);
-  // });
-}
-
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
 
@@ -96,10 +67,10 @@ io.on('connection', (socket) => {
       let docId = data.docId;
       let text = data.text;
 
-      translateTextWithModel(text, 'en').then(res => {
+      translator.translateTextWithModel(text, 'en').then(res => {
         documentsData[docId].translations[text] = res;
-        console.log(`--New text to translate--`)
-        console.log(JSON.stringify(documentsData[docId].translations))
+        // console.log(`--New text to translate--`)
+        // console.log(JSON.stringify(documentsData[docId].translations))
         io.emit(`new-translation-data-${docId}`, documentsData[docId].translations)  
       });
     })
@@ -109,7 +80,7 @@ io.on('connection', (socket) => {
       let verb = data.verb;
 
 
-      // translateTextWithModel(text, 'en').then(res => {
+      // translator.translateTextWithModel(text, 'en').then(res => {
       documentsData[docId].conjugations[verb] = 'This is the conjugation';
       // console.log(`--New text to translate--`)
       // console.log(JSON.stringify(documentsData[docId].translations))

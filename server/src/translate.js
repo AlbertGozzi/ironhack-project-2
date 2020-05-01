@@ -26,10 +26,11 @@ async function translateTextWithModel(text, target) {
   // multiple texts.
   let [translations] = await translate.translate(text, options);
   translations = Array.isArray(translations) ? translations : [translations];
-  console.log('Translations:');
-  translations.forEach((translation, i) => {
-    console.log(`${text} => (${target}) ${translation}`);
-  });
+  // console.log(`Log: ${translations[0]}`)
+  return translations[0];
+  // translations.forEach((translation, i) => {
+  //   console.log(`${text} => (${target}) ${translation}`);
+  // });
 }
 
-// translateTextWithModel('Bonjour! Comment allez vous?', 'en');
+exports.translateTextWithModel = translateTextWithModel;

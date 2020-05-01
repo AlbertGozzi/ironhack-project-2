@@ -16,11 +16,11 @@ let verbToConjugate = {};
 let conjugate = {};
 
 languages.forEach(language => {
-    console.log(`<---- Loading ${languagesLong[language]} ---->`);
+    // console.log(`<---- Loading ${languagesLong[language]} ---->`);
     conjFile[language] = JSON.parse(fs.readFileSync(`files/${language}.json`));
-    console.log(`Number of conjugations: ${conjFile[language].template.length}`)
+    // console.log(`Number of conjugations: ${conjFile[language].template.length}`)
     verbFile[language] = JSON.parse(fs.readFileSync(`files/verbs-${language}.json`));
-    console.log(`Number of verbs: ${verbFile[language].v.length}`);
+    // console.log(`Number of verbs: ${verbFile[language].v.length}`);
 
     verbToConjugate[language] = {};
     language === 'fr' ?
@@ -32,3 +32,4 @@ languages.forEach(language => {
 });
 
 // console.log(JSON.stringify(conjugate['fr'][verbToConjugate['fr']['aller']]));
+
