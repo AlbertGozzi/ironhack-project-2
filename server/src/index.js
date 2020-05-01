@@ -81,7 +81,7 @@ io.on('connection', (socket) => {
 
 
       // translator.translateTextWithModel(text, 'en').then(res => {
-      documentsData[docId].conjugations[verb] = 'This is the conjugation';
+      documentsData[docId].conjugations[verb] = conjugator.fullConjugation('fr', verb);
       // console.log(`--New text to translate--`)
       // console.log(JSON.stringify(documentsData[docId].translations))
       io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations)  

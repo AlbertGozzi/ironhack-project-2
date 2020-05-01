@@ -32,4 +32,22 @@ languages.forEach(language => {
 });
 
 // console.log(JSON.stringify(conjugate['fr'][verbToConjugate['fr']['aller']]));
+const conjugator = (language, verb, mode, time, person) => {
+    let fullConj = fullConjugation(language, verb); 
+    if (!mode) { return fullConj;}
+    if (!time) { return fullConj[mode];}
+    if (!person) {return fullConj[mode][time];}
+    return fullConj[mode][time].p[person-1].i[0];  
+}
+
+const fullConjugation = (language, verb) => {
+    return conjugate[language][verbToConjugate[language][verb]]; 
+}
+
+// console.log(JSON.stringify(conjugator('fr', 'aller', 'Indicatif', 'présent', 2)));
+
+exports.fullConjugation = fullConjugation;
+
+
+
 

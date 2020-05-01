@@ -36,21 +36,53 @@ const VerbPractice = (props) => {
         });
     }, [docId, socket]);
 
-    const displayConjugation = (verb) => {
+    const displayFullConjugation = (verb) => {
         let conjugation = conjugatedVerbs[verb];
-        if (typeof conjugation === 'string') {
-            return conjugation;
-        } else {
+        try {
+            let conjugatesAs = conjugation._name.toString();
+            let ending = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
+            let root = verb.replace(ending, '');
+            return <div>
+                {Object.keys(conjugation).map((mode, i) => {
+                    if (mode === "_name") {return <p><strong>Conjugates as: </strong>{conjugation[mode].replace(':','')}</p>}
+                    let modeConjugation = conjugation[mode];
+                    return <span><strong>{mode}</strong><ul>
+                        {Object.keys(modeConjugation).map((time, j) => {
+                            let timeConjugation = modeConjugation[time];
+                            return <li>{time}<ul>
+                                {timeConjugation.p.map((person, k) => {
+                                    return <li>{`${k + 1}: `}{root}{person.i[0]}</li>
+                                })}
+                            </ul></li>
+                        })}
+                    </ul></span>
+                })}
+            <hr></hr></div>;
+        }
+        catch {
+            return "Loading..."; 
+        }
+    }
+
+    const getConjugation = (verb, mode, time, person) => {
+        let conjugation = conjugatedVerbs[verb];
+        try {
+            let conjugatesAs = conjugation._name.toString();
+            let ending = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
+            let root = verb.replace(ending, '');    
+            return root.concat(conjugation[mode][time].p[person-1].i[0]);
+        }
+        catch {
             return "Loading..."
         }
     }
 
     return (
-        <div>
+        <div className="theoryEditor">
             {verbsToPractice.map((verb, i) => {
                 return <div key={i}>
                   <p><strong>{verb} =></strong></p>
-                  <p>{displayConjugation(verb)}</p>
+                  <p>{getConjugation(verb, 'Indicatif', 'présent', 1)}</p>
                 </div>
             })}
         </div>
