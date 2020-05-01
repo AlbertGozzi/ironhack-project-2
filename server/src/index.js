@@ -76,8 +76,9 @@ io.on('connection', (socket) => {
         console.log(`New user in document [${docId}]: ${socket.id}`);
         if (!(docId in documentsData)) {
             console.log('First user in document');
-            documentsData[docId] = {}
-            documentsData[docId].translations = {}
+            documentsData[docId] = {};
+            documentsData[docId].translations = {};
+            documentsData[docId].conjugations = {};
             documentsData[docId].value = initialEditorValue;
         }
         console.log(`Sending initial value ${JSON.stringify(documentsData[docId].value)}`);
@@ -101,6 +102,19 @@ io.on('connection', (socket) => {
         console.log(JSON.stringify(documentsData[docId].translations))
         io.emit(`new-translation-data-${docId}`, documentsData[docId].translations)  
       });
+    })
+
+    socket.on('new-verb-to-conjugate', (data) => {
+      let docId = data.docId;
+      let verb = data.verb;
+
+
+      // translateTextWithModel(text, 'en').then(res => {
+      documentsData[docId].conjugations[verb] = 'This is the conjugation';
+      // console.log(`--New text to translate--`)
+      // console.log(JSON.stringify(documentsData[docId].translations))
+      io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations)  
+      // });
     })
 
     socket.on('disconnect', (reason) => {

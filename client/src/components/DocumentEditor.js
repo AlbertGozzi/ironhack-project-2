@@ -8,7 +8,7 @@ import { withHtml } from './withHtml';
 import { SyncingEditor } from './SyncingEditor';
 import TheorySummary from './TheorySummary';
 import TranslationSideBar from './TranslationSideBar';
-import axios from 'axios';
+import VerbPractice from './VerbPractice';
 
 const socket = io('');
 
@@ -50,17 +50,7 @@ export const DocumentEditor = (props) => {
           socket.off(`new-remote-operations-${docId}`);
           socket.disconnect();
         };
-    }, []);
-    
-    // const displaySound = (text) => {
-    //   axios.get('https://translate.google.com/translate_tts?ie=UTF-8&tl=fr&client=tw-ob&q=bonjour')
-    //   .then(response => {
-    //     console.log(response);
-    //     return <audio controls>
-    //       <source src={response} type="audio/mp3"/>
-    //     </audio>
-    //   })
-    // }
+    }, [docId, editor]);
 
     return (
         <div>
@@ -78,10 +68,13 @@ export const DocumentEditor = (props) => {
                   <Route exact path={`/document/${docId}/theory`}>
                     <TheorySummary value={value} />
                   </Route>
+                  <Route exact path={`/document/${docId}/verbPractice`}>
+                    <VerbPractice docId={docId} value={value} socket={socket} />
+                  </Route>
+
               </section>            
           </div>
           <div className="rightPanel">
-            {/* {displaySound()} */}
             <Route exact path={`/document/${docId}/main`}>
               <TranslationSideBar docId={docId} value={value} socket={socket}/>
             </Route>

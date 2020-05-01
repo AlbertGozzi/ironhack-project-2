@@ -1,12 +1,11 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 const TranslationSideBar = (props) => {
     let value = props.value;
     let socket = props.socket;
     let docId = props.docId;
 
-    const translatedTexts = useRef([]);
-    const [placeholder, forceState] = useState([]);
-    const translations = useRef({});
+    const [translatedTexts, setTranslatedTexts] = useState([]);
+    const [translations, setTranslations] = useState([]);
 
     useEffect(() => {
         let translatedTextsValue = [];
@@ -15,35 +14,29 @@ const TranslationSideBar = (props) => {
             textsToTranslate.forEach(element => {
                 let text = element.text;
                 translatedTextsValue.push(text);
+                if (!translations[text]) {
+                    let data = {
+                        text: text,
+                        docId: docId
+                    }
+                    socket.emit('new-text-to-translate', data);
+                }
             })
         })
 
-        translatedTexts.current = [...translatedTextsValue];
-        forceState(translatedTextsValue);
+        setTranslatedTexts([...translatedTextsValue]);
 
-        translatedTexts.current.forEach(text => {
-            if (!translations[text]) {
-                // console.log(translateTextWithModel('Bonjour! Comment allez vous?', 'en'));
-                let data = {
-                    text: text,
-                    docId: docId
-                }
-                socket.emit('new-text-to-translate', data);
-                // translations.current[text] = 'Translation';
-            }
-        })
-    }, [value])
+    }, [value, docId, socket, translations])
 
     useEffect(() => {
         socket.on(`new-translation-data-${docId}`, (serverTranslations) => {
             console.log('Translations received');
-            translations.current = serverTranslations;
-            forceState(serverTranslations);
+            setTranslations(serverTranslations);
         });
-    }, [socket])
+    }, [docId, socket])
     
     const displayTranslation = (text) => {
-        let translation = translations.current[text];
+        let translation = translations[text];
         if (typeof translation === 'string') {
             return translation;
         } else {
@@ -53,9 +46,9 @@ const TranslationSideBar = (props) => {
 
     return (
         <div>
-            {translatedTexts.current.map((text, i) => {
+            {translatedTexts.map((text, i) => {
                 return <div key={i} className="translateCard">
-                  <p><strong>{text} ==></strong></p>
+                  <p><strong>{text} =></strong></p>
                   <p>{displayTranslation(text)}</p>
                 </div>
             })}
