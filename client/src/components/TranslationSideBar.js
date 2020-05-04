@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+
 const TranslationSideBar = (props) => {
     let value = props.value;
     let socket = props.socket;

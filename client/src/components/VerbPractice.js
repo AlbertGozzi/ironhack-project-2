@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 const VerbPractice = (props) => {
     let conjugationStructure = props.conjugationStructure;
@@ -70,10 +70,6 @@ const VerbPractice = (props) => {
         );
     }
 
-    useEffect(() => {
-        setCurrentConjugation(getRandomConjugation());
-    }, [conjugationStructure, conjugatedVerbs])
-
     const checkAnswer = () => {
         let rightAnswer = getConjugation(currentConjugation.verb, currentConjugation.mode, currentConjugation.time, currentConjugation.person);
         let attempt = inputRef.current?.value;
@@ -93,7 +89,7 @@ const VerbPractice = (props) => {
     return (
         <div >
             <br></br>
-            {displayRandomVerb(currentConjugation)}
+            {displayRandomVerb(getRandomConjugation())}
             <input ref={inputRef} className="verbPracticeInput" placeholder="Your answer here." onKeyPress={event => {if (event.key === 'Enter') {checkAnswer()}}}></input>
             <div className="buttonCheckboxGroup">
                 <button className="button verbPracticeButton" onClick={checkAnswer}>Check Answer</button>

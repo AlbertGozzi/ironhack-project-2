@@ -4,7 +4,7 @@ var GOOGLE_APPLICATION_CREDENTIALS = require('../googlecloud-apikey.json')
 const {Translate} = require('@google-cloud/translate').v2;
 // Creates a client
 const translate = new Translate({keyFilename: "../server/googlecloud-apikey.json"});
-console.log(GOOGLE_APPLICATION_CREDENTIALS);
+// console.log(GOOGLE_APPLICATION_CREDENTIALS);
 
 // async function listLanguages() {
 //     // Lists available translation language with their names in English (the default).
@@ -17,10 +17,7 @@ console.log(GOOGLE_APPLICATION_CREDENTIALS);
 
 async function translateTextWithModel(text, target) {
   const options = {
-    // The target language, e.g. "ru"
     to: target,
-    // Make sure your project is whitelisted.
-    // Possible values are "base" and "nmt"
     model: 'nmt',
   };
 
@@ -29,7 +26,6 @@ async function translateTextWithModel(text, target) {
   // multiple texts.
   let [translations] = await translate.translate(text, options);
   translations = Array.isArray(translations) ? translations : [translations];
-  // console.log(`Log: ${translations[0]}`)
   return translations[0];
   // translations.forEach((translation, i) => {
   //   console.log(`${text} => (${target}) ${translation}`);

@@ -3,7 +3,6 @@ import { Link, NavLink, Route } from 'react-router-dom';
 import { createEditor } from 'slate';
 import { withReact} from 'slate-react';
 import { withHistory } from 'slate-history';
-import io from 'socket.io-client';
 import { withHtml } from './withHtml';
 import { SyncingEditor } from './SyncingEditor';
 import CheatsheetSummary from './CheatsheetSummary';
@@ -11,7 +10,6 @@ import TranslationSideBar from './TranslationSideBar';
 import VerbPractice from './VerbPractice';
 import VerbConjugation from './VerbConjugation'
 
-const socket = io('');
 
 export const DocumentEditor = (props) => {
     const [value, setValue] = useState([]);
@@ -19,6 +17,7 @@ export const DocumentEditor = (props) => {
     const [conjugatedVerbs, setConjugatedVerbs] = useState([]);
     const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
     const docId = props.match.params.id;
+    const socket = props.socket;
     const docLanguage = 'French';
     const conjugationStructure = useRef([]);
 
@@ -59,9 +58,8 @@ export const DocumentEditor = (props) => {
           console.log("Unmounting...");
           socket.off(`initial-value-${docId}`);
           socket.off(`new-remote-operations-${docId}`);
-          socket.disconnect();
         };
-    }, [docId, editor]);
+    }, [docId, editor, socket]);
 
     useEffect(() => {
       let verbsToPracticeValue = [];
@@ -82,7 +80,7 @@ export const DocumentEditor = (props) => {
 
       setVerbsToPractice([...verbsToPracticeValue]);
 
-    }, [value, docId, conjugatedVerbs, setVerbsToPractice]);
+    }, [value, docId, conjugatedVerbs, setVerbsToPractice, socket]);
 
     useEffect(() => {
         socket.on(`new-conjugation-data-${docId}`, (serverConjugations) => {
@@ -90,7 +88,7 @@ export const DocumentEditor = (props) => {
             // console.log(serverConjugations);
             setConjugatedVerbs(serverConjugations);
         });
-    }, [docId, setConjugatedVerbs]);
+    }, [docId, setConjugatedVerbs, socket]);
     
     return (
         <div>

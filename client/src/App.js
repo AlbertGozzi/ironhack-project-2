@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route} from 'react-router-dom';
 import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentCard } from './components/DocumentCard';
+import io from 'socket.io-client';
+
 
 const userDocumentsPlaceholderValue = [
   { 
@@ -22,7 +24,8 @@ const userDocumentsPlaceholderValue = [
   }
 ];
 
-const supportedLanguages = ['Spanish', 'French', 'Portuguese', 'Italian', 'Romanian']
+const supportedLanguages = ['Spanish', 'French', 'Portuguese', 'Italian', 'Romanian'];
+const socket = io('');
 
 const App = () => {
   const [userDocuments, setUserDocuments] = useState(userDocumentsPlaceholderValue);
@@ -72,6 +75,13 @@ const App = () => {
     </div>          
   }
 
+  useEffect(() => {
+    return () => {
+      console.log("Disconnecting...");
+      socket.disconnect();;
+    };
+  })
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -85,7 +95,7 @@ const App = () => {
           </section>
           {displayForm ? displayNewDocumentForm() : ''}
         </Route>
-        <Route path="/document/:id" render={props => <DocumentEditor {...props} />} />
+        <Route path="/document/:id" render={props => <DocumentEditor {...props} socket={socket} />} />
       </BrowserRouter>
 
     </div>   
