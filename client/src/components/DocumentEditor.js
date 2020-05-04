@@ -16,23 +16,23 @@ export const DocumentEditor = (props) => {
     const [verbsToPractice, setVerbsToPractice] = useState([]);
     const [conjugatedVerbs, setConjugatedVerbs] = useState([]);
     const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
-    const docId = props.match.params.id;
+    const docId = props.match.params.uniqueId;
     const socket = props.socket;
-    const docLanguage = 'French';
+    const docLanguage = useRef([]);
     const conjugationStructure = useRef([]);
+    const documentName = useRef([]);
 
     useEffect(() => {
         console.log("Mounting...");
-        const initialData = {
-          docId: docId,
-          docLanguage: docLanguage
-        };
-        socket.emit('initial-data', initialData);
+        
+        socket.emit('request-initial-data', docId);
       
         socket.on(`initial-value-${docId}`, (data) => {
           console.log('Initial value received');
           setValue(data.value);
           conjugationStructure.current = data.languageConjugationStructure;
+          documentName.current = data.name;
+          docLanguage.current = data.language;
         });
     
         socket.on(`new-remote-operations-${docId}`, ({editorId, ops, value}) => {
@@ -97,8 +97,8 @@ export const DocumentEditor = (props) => {
           </div>
           <div className="main">
               <section className="title">
-                <h4><strong>Document: </strong>{docId}</h4>
-                <h4><strong>Language: </strong>{docLanguage}</h4>
+                <h4><strong>Document: </strong>{documentName.current}</h4>
+                <h4><strong>Language: </strong>{docLanguage.current}</h4>
                 <button className="button">Share</button>
               </section>
               <section className ="navbar">

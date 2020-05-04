@@ -41,14 +41,16 @@ const App = () => {
     e.preventDefault();
 
     let newDocument = { 
+      uniqueId: (new Date()).getTime(),
       name: e.target.documentName.value,
       language: e.target.language.value,
-      createdBy: 'user1'
+      createdBy: socket.id
     };
     
     setDisplayForm(false)
-
     e.target.reset()
+
+    socket.emit('new-document', newDocument)
     setUserDocuments([...userDocuments, newDocument]);
   }
 
@@ -75,12 +77,12 @@ const App = () => {
     </div>          
   }
 
-  useEffect(() => {
-    return () => {
-      console.log("Disconnecting...");
-      socket.disconnect();;
-    };
-  })
+  // useEffect(() => {
+  //   return () => {
+  //     console.log("Disconnecting...");
+  //     socket.disconnect();;
+  //   };
+  // })
 
   return (
     <div className="App">
@@ -95,7 +97,7 @@ const App = () => {
           </section>
           {displayForm ? displayNewDocumentForm() : ''}
         </Route>
-        <Route path="/document/:id" render={props => <DocumentEditor {...props} socket={socket} />} />
+        <Route path="/document/:uniqueId" render={props => <DocumentEditor {...props} socket={socket} />} />
       </BrowserRouter>
 
     </div>   

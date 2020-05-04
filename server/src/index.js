@@ -29,26 +29,55 @@ server.listen(port, function() {
     console.log(`Starting server on port ${port}`);
 });
 
-const initialEditorValue = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'A line of text in a paragraph.' }],
-  },
-];
+const initialEditorValue = {
+  fr: [
+    {
+      type: 'paragraph',
+      children: [{ text: 'French: A line of text in a paragraph.' }],
+    },
+  ],
+  pt: [
+    {
+      type: 'paragraph',
+      children: [{ text: 'Portuguese: A line of text in a paragraph.' }],
+    },
+  ]
+}
 
 const documentsData = {};
 
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
 
-    socket.on('initial-data', (initialData) => {
-      let docId = initialData.docId;
-      let language = initialData.docLanguage;
+    socket.on('new-document', (newDocument) => {
+      let uniqueId = newDocument.uniqueId;
+      let name = newDocument.name;
+      let language = newDocument.language;
       let languageCode = conjugator.languagesLong[language];
+      let initialUser = newDocument.createdBy;
+      console.log(`---`);
+      console.log(`New document: ${uniqueId}`);
+
+      //Create entry
+      documentsData[uniqueId] = {};
+      documentsData[uniqueId] = {};
+      documentsData[uniqueId].name = name;
+      documentsData[uniqueId].language = language;
+      documentsData[uniqueId].languageCode = languageCode;
+      documentsData[uniqueId].languageConjugationStructure = conjugator.languageConjugationStructure[languageCode];
+      documentsData[uniqueId].translations = {};
+      documentsData[uniqueId].conjugations = {};
+      documentsData[uniqueId].value = initialEditorValue[languageCode];
+      documentsData[uniqueId].users = [];
+      documentsData[uniqueId].users.push(initialUser);
+    });
+
+    socket.on('request-initial-data', (docId) => {
       console.log(`---`);
       console.log(`New user in document [${docId}]: ${socket.id}`);
       if (!(docId in documentsData)) {
-          console.log('First user in document');
+          console.log('Error! Requested data for not created document');
+          // Delete all below
           documentsData[docId] = {};
           documentsData[docId].language = language;
           documentsData[docId].languageCode = languageCode;
