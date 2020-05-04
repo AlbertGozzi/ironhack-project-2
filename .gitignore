@@ -1,6 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+client/node_modules
+server/node_modules
 /node_modules
 /.pnp
 .pnp.js
@@ -9,7 +11,7 @@
 /coverage
 
 # production
-/build
+client/build
 
 # misc
 .DS_Store
@@ -25,4 +27,4 @@ yarn-error.log*
 
 googlecloud-apikey.json
 *googlecloud-apikey.json
-../server/googlecloud-apikey.json
+server/googlecloud-apikey.json
