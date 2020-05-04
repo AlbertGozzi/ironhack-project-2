@@ -3,7 +3,7 @@
 
   // Instantiates a client
 //   const translate = new Translate({projectId});
-  const translate = new Translate({keyFilename: "../server/googlecloud-apikey.json"});
+  const translate = new Translate({keyFilename: "../googlecloud-apikey.json"});
 
   async function quickStart() {
     // The text to translate

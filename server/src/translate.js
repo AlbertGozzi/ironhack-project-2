@@ -1,4 +1,4 @@
-var GOOGLE_APPLICATION_CREDENTIALS = require('../server/googlecloud-apikey.json')
+var GOOGLE_APPLICATION_CREDENTIALS = require('../googlecloud-apikey.json')
 
 // Imports the Google Cloud client library
 const {Translate} = require('@google-cloud/translate').v2;
