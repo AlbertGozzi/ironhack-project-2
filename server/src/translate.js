@@ -1,7 +1,10 @@
+var GOOGLE_APPLICATION_CREDENTIALS = require('../server/googlecloud-apikey.json')
+
 // Imports the Google Cloud client library
 const {Translate} = require('@google-cloud/translate').v2;
 // Creates a client
-const translate = new Translate();
+const translate = new Translate({keyFilename: "../server/googlecloud-apikey.json"});
+console.log(GOOGLE_APPLICATION_CREDENTIALS);
 
 // async function listLanguages() {
 //     // Lists available translation language with their names in English (the default).

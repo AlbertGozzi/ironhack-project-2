@@ -3,8 +3,7 @@ let express = require('express');
 let http = require('http');
 let path = require('path');
 let socketIO = require('socket.io');
-// Imports the Google Cloud client library
-const {Translate} = require('@google-cloud/translate').v2;
+
 // Local Imports
 const conjugator = require('./conjugate.js');
 const translator = require('./translate.js');

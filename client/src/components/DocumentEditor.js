@@ -57,6 +57,7 @@ export const DocumentEditor = (props) => {
     
         return () => {
           console.log("Unmounting...");
+          socket.off(`initial-value-${docId}`);
           socket.off(`new-remote-operations-${docId}`);
           socket.disconnect();
         };
@@ -104,7 +105,7 @@ export const DocumentEditor = (props) => {
               </section>
               <section className ="navbar">
                   <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
-                  <NavLink to={`/document/${docId}/cheatsheets/main-summary`}><h4>Cheatsheets</h4></NavLink>
+                  <NavLink to={`/document/${docId}/cheatsheets`} ><h4>Cheatsheets</h4></NavLink>
                   <NavLink to={`/document/${docId}/verbpractice`}><h4>Verb Practice</h4></NavLink>
               </section>
               <section>
@@ -114,15 +115,15 @@ export const DocumentEditor = (props) => {
 
                   <Route path={`/document/${docId}/cheatsheets`} >
                     <section className ="navbar secondaryNavbar">
-                      <NavLink to={`/document/${docId}/cheatsheets/main-summary`}><h4>Main Summary</h4></NavLink>
+                      <NavLink exact to={`/document/${docId}/cheatsheets`}><h4>Main Summary</h4></NavLink>
                       <NavLink to={`/document/${docId}/cheatsheets/verb-conjugation`}><h4>Verb Conjugation</h4></NavLink>
                     </section>
                   </Route>
-                  <Route exact path={`/document/${docId}/cheatsheets/main-summary`}>
-                    <CheatsheetSummary value={value} />
-                  </Route>
                   <Route exact path={`/document/${docId}/cheatsheets/verb-conjugation`} >
                     <VerbConjugation verbsToPractice={verbsToPractice} conjugatedVerbs={conjugatedVerbs}/>
+                  </Route>
+                  <Route exact path={`/document/${docId}/cheatsheets`}>
+                    <CheatsheetSummary value={value} />
                   </Route>
 
                   <Route exact path={`/document/${docId}/verbpractice`}>
