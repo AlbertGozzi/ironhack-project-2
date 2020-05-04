@@ -25,3 +25,4 @@ yarn-error.log*
 
 googlecloud-apikey.json
 *googlecloud-apikey.json
+../server/googlecloud-apikey.json
