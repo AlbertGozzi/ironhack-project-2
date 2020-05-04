@@ -25,6 +25,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-googlecloud-apikey.json
-*googlecloud-apikey.json
+.googlecloud-apikey.json
 /server/googlecloud-apikey.json
