@@ -125,8 +125,8 @@ const HoveringToolbar = () => {
 
   return (
     <div ref={ref} className="hoveringMenu">
-      <HoverButton format="theory" label="Theory" />
-      <HoverButton format="verb" label="Verb" />
+      <HoverButton format="theory" label="Add to Summary" />
+      <HoverButton format="verb" label="Add to Verb List" />
       <HoverButton format="translate" label="Translate" />
     </div>
   )

@@ -1,12 +1,11 @@
 import React from 'react';
 
-const TheorySummary = (props) => {
+const CheatsheetSummary = (props) => {
     let value = props.value;
 
     return (
         <div>
-            <h4 className="theoryTitle"> Theory Summary </h4>
-            <div className="theoryEditor">
+            <div className="editor yellow">
                 {value.map((text,i) => {
                 return <p key={i}>{text.children.map((element, j) => {
                     if (element.theory) {
@@ -20,4 +19,4 @@ const TheorySummary = (props) => {
     );
 };
 
-export default TheorySummary;
+export default CheatsheetSummary;

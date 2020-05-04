@@ -8,6 +8,82 @@ body {
   overflow: hidden;
 }
 
+.App h2 {
+  margin: 1em;
+}
+
+.allDocuments {
+  margin: 0.5em;
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: auto;
+}
+
+.allDocuments > * {
+  border: 1px solid red;
+}
+
+.allDocuments a {
+  text-decoration: none;
+}
+
+.documentCard {
+  width: calc(20% - 3em - 2px);
+  margin: 0.5em;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+
+  padding: 1em;
+}
+
+.documentCard h4 {
+  font-weight: 400;
+}
+
+.newDocumentForm {
+  position: fixed;
+  width: 34vw;
+  height: 20vh;
+  top: 40vh;
+  left: 32vw;
+
+  background-color: rgb(39, 41, 45);
+  border-radius: 4px;
+
+  z-index: 1;
+
+  padding: 0 1em;
+}
+
+.form {
+  margin: 0.5em 0;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-row-gap: 1em;
+}
+
+.formLanguages {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.formSubmit {
+  margin: 0 auto;
+  grid-column: 1/3;
+}
+
+.transparentLayer {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 .main {
   margin: 0 auto;
   width: calc(60% - 2em);
@@ -25,6 +101,27 @@ body {
   right: 0;
 }
 
+.leftPanel {
+  color:rgba(255, 255, 255);
+
+  margin: 0 1em 0 0;
+
+  width: calc(20% - 1em);
+  position: fixed;
+  top: 1em;
+  left: 0;
+
+}
+
+.leftPanel a {
+  color: rgba(255, 255, 255);
+  text-decoration: none;
+}
+
+.leftPanel p {
+  margin: 0 1em;
+}
+
 .translateCard {
   background: rgba(255, 255, 255, 0.09);
   border-radius: 4px;
@@ -40,9 +137,32 @@ body {
 }
 
 .title {
+  display: flex;
+  justify-content: space-between;
   margin-top: 1em;
-  text-align: left;
+}
+
+.title > * {
   font-weight: 400;
+  margin: 0;
+}
+
+.allDocumentsTitle {
+  display: flex;
+  justify-content: space-between;
+  margin: 1em 1em 0 1em;
+}
+
+.allDocumentsTitle h2 {
+  margin: 0;
+}
+
+.button {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.9);
+  color: rgb(39, 41, 45);
+  border-radius: 4px;
+  padding: 0.3em 0.6em;
 }
 
 .navbar {
@@ -61,6 +181,11 @@ body {
 .navbar a {
   color: rgba(255, 255, 255, 0.25);
   text-decoration: none;
+}
+
+.secondaryNavbar h4 {
+  margin: 0;
+  padding-top: 0;
 }
 
 a.active {
@@ -141,7 +266,7 @@ a.active {
   color:white;
 }
 
-.editor, .theoryEditor {
+.editor {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   height: 80vh;
@@ -149,12 +274,12 @@ a.active {
   color: rgb(26, 26, 26);
 }
 
-.editor p, .theoryEditor p, .translateCard p {
+.editor p, .translateCard p {
   margin-top: 0;
   margin-bottom: 0.2em;
 }
 
-.theoryEditor, .theory {
+.yellow, .theory {
   background-color: #ffffb3;
 }
 
@@ -166,4 +291,58 @@ a.active {
 .translate {
   border: 1px solid rgba(39, 41, 45, 0.5);
   border-radius: 4px;
+}
+
+.verbToConjugate {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.verbToConjugate > * {
+  border: 1px;
+  border-radius: 4px;
+  padding: 0.5em;
+  margin: 0 2em;
+  color: rgb(39, 41, 45);
+  background-color: #ffffb3;
+}
+
+.verbPracticeInput {
+  display: block;
+  line-height: 2.5em;
+
+  border-radius: 4px;
+
+  padding: 0 0.5em;
+  margin: 2em auto;
+  width: 30%;
+}
+
+.buttonCheckboxGroup {
+  display: block;
+  text-align: center;
+
+  margin: 1em auto;
+}
+
+.verbPracticeButton {
+  margin: 0 1em;
+}
+
+.verbConjugationAnswer {
+  border: 1px;
+  border-radius: 4px;
+  padding: 0.5em;
+  margin: 0 auto;
+  width: 30%;
+  text-align: center;
+}
+
+.correct {
+  background-color: darkgreen;
+}
+
+.incorrect {
+  background-color: darkred;
 }

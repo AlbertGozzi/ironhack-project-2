@@ -3,11 +3,87 @@ let fs = require('fs');
 
 let languages = ['es', 'fr', 'pt', 'ro', 'it'];
 let languagesLong = {
-    es: 'Spanish',
-    fr: 'French',
-    pt: 'Portuguese',
-    ro: 'Romanian',
-    it: 'Italian'
+    Spanish: 'es',
+    French: 'fr',
+    Portuguese: 'pt',
+    Romanian: 'ro',
+    Italian: 'it'
+};
+let languageConjugationStructure = {
+    fr: {
+        modes: [
+            {   name: 'Infinitif', 
+                times: [
+                    {
+                        name: 'infinitif-présent',
+                        persons: 1
+                    }
+                ]
+            }, 
+            {   name: 'Indicatif', 
+                times: [
+                    {
+                        name: 'présent',
+                        persons: 6
+                    },
+                    {
+                        name: 'imparfait',
+                        persons: 6
+                    },
+                    {
+                        name: 'futur-simple',
+                        persons: 6
+                    },
+                    {
+                        name: 'passé-simple',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Conditionnel', 
+                times: [
+                    {
+                        name: 'présent',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Subjonctif', 
+                times: [
+                    {
+                        name: 'présent',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Imperatif', 
+                times: [
+                    {
+                        name: 'imperatif-présent',
+                        persons: 3
+                    }
+                ]
+            }, 
+            {   name: 'Participe', 
+                times: [
+                    {
+                        name: 'participe-présent',
+                        persons: 1
+                    },
+                    {
+                        name: 'participe-passé',
+                        persons: 4
+                    }
+                ]
+            }
+        ],
+        persons: {
+            1: ['All'], 
+            6: ['je', 'tu', 'il/elle', 'nous', 'vous', 'ils'],
+            3: ['tu', 'nous', 'vous'],
+            4: ['il', 'ils', 'elle', 'elles']
+        }
+    }
 }
 
 let conjFile = {};
@@ -47,6 +123,8 @@ const fullConjugation = (language, verb) => {
 // console.log(JSON.stringify(conjugator('fr', 'aller', 'Indicatif', 'présent', 2)));
 
 exports.fullConjugation = fullConjugation;
+exports.languagesLong = languagesLong;
+exports.languageConjugationStructure = languageConjugationStructure;
 
 
 

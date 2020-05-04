@@ -42,20 +42,27 @@ const documentsData = {};
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
 
-    socket.on('doc-id', (docId) => {
-        console.log(`---`);
-        console.log(`New user in document [${docId}]: ${socket.id}`);
-        if (!(docId in documentsData)) {
-            console.log('First user in document');
-            documentsData[docId] = {};
-            documentsData[docId].translations = {};
-            documentsData[docId].conjugations = {};
-            documentsData[docId].value = initialEditorValue;
-        }
-        console.log(`Sending initial value ${JSON.stringify(documentsData[docId].value)}`);
-        console.log(`---`);
-        io.to(socket.id).emit(`initial-value-${docId}`, documentsData[docId].value);
+    socket.on('initial-data', (initialData) => {
+      let docId = initialData.docId;
+      let language = initialData.docLanguage;
+      let languageCode = conjugator.languagesLong[language];
+      console.log(`---`);
+      console.log(`New user in document [${docId}]: ${socket.id}`);
+      if (!(docId in documentsData)) {
+          console.log('First user in document');
+          documentsData[docId] = {};
+          documentsData[docId].language = language;
+          documentsData[docId].languageCode = languageCode;
+          documentsData[docId].languageConjugationStructure = conjugator.languageConjugationStructure[languageCode];
+          documentsData[docId].translations = {};
+          documentsData[docId].conjugations = {};
+          documentsData[docId].value = initialEditorValue;
+      }
+      console.log(`Sending initial value ${JSON.stringify(documentsData[docId].value)}`);
+      console.log(`---`);
+      io.to(socket.id).emit(`initial-value-${docId}`, documentsData[docId]);
     });
+
 
     socket.on('new-operations', (data) => {
       documentsData[data.docId].value = data.value;
@@ -78,14 +85,17 @@ io.on('connection', (socket) => {
     socket.on('new-verb-to-conjugate', (data) => {
       let docId = data.docId;
       let verb = data.verb;
+      let language = documentsData[docId].language;
+      let languageCode = conjugator.languagesLong[language];
 
+      let conjugation = conjugator.fullConjugation(languageCode, verb);
+      documentsData[docId].conjugations[verb] = conjugation;
 
-      // translator.translateTextWithModel(text, 'en').then(res => {
-      documentsData[docId].conjugations[verb] = conjugator.fullConjugation('fr', verb);
-      // console.log(`--New text to translate--`)
-      // console.log(JSON.stringify(documentsData[docId].translations))
-      io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations)  
-      // });
+      // Old version
+      // if (!conjugation) { documentsData[docId].conjugations[verb] = 'Verb not found' }
+      // io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations)  
+      if (conjugation) { io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations) }
+
     })
 
     socket.on('disconnect', (reason) => {
