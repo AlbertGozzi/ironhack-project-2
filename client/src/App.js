@@ -11,12 +11,12 @@ const userDocumentsPlaceholderValue = [
     createdBy: 'user1'
   },
   { 
-    name: 'otherDoc - 1',
+    name: 'sampleDocPt',
     language: 'Portuguese',
     createdBy: 'user2'
   },
   { 
-    name: 'otherDoc - 2',
+    name: 'sampleDocIt',
     language: 'Italian',
     createdBy: 'user3'
   }
