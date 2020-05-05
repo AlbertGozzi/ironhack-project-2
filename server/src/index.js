@@ -30,16 +30,34 @@ server.listen(port, function() {
 });
 
 const initialEditorValue = {
+  es: [
+    {
+      type: 'paragraph',
+      children: [{ text: 'Una línea de texto en un párrafo.' }],
+    },
+  ],
   fr: [
     {
       type: 'paragraph',
-      children: [{ text: 'French: A line of text in a paragraph.' }],
+      children: [{ text: 'Une ligne de text dans un paragraphe.' }],
     },
   ],
   pt: [
     {
       type: 'paragraph',
-      children: [{ text: 'Portuguese: A line of text in a paragraph.' }],
+      children: [{ text: 'Uma linhea de texto em um parágrafo.' }],
+    },
+  ],
+  ro: [
+    {
+      type: 'paragraph',
+      children: [{ text: 'O linie de text dintr-un paragraf.' }],
+    },
+  ],
+  it: [
+    {
+      type: 'paragraph',
+      children: [{ text: 'Una riga di testo in un paragrafo.' }],
     },
   ]
 }
@@ -70,22 +88,18 @@ io.on('connection', (socket) => {
       documentsData[uniqueId].value = initialEditorValue[languageCode];
       documentsData[uniqueId].users = [];
       documentsData[uniqueId].users.push(initialUser);
+
+      io.emit('new-document-from-server', {document: documentsData[uniqueId], id: uniqueId})
+    });
+
+    socket.on('request-initial-documents', () => {
+      console.log('New user requests documents');
+      io.to(socket.id).emit('initial-documents', documentsData);
     });
 
     socket.on('request-initial-data', (docId) => {
       console.log(`---`);
       console.log(`New user in document [${docId}]: ${socket.id}`);
-      if (!(docId in documentsData)) {
-          console.log('Error! Requested data for not created document');
-          // Delete all below
-          documentsData[docId] = {};
-          documentsData[docId].language = language;
-          documentsData[docId].languageCode = languageCode;
-          documentsData[docId].languageConjugationStructure = conjugator.languageConjugationStructure[languageCode];
-          documentsData[docId].translations = {};
-          documentsData[docId].conjugations = {};
-          documentsData[docId].value = initialEditorValue;
-      }
       console.log(`Sending initial value ${JSON.stringify(documentsData[docId].value)}`);
       console.log(`---`);
       io.to(socket.id).emit(`initial-value-${docId}`, documentsData[docId]);

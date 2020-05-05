@@ -1,10 +1,9 @@
-var GOOGLE_APPLICATION_CREDENTIALS = require('../googlecloud-apikey.json')
+require('dotenv').config()
 
 // Imports the Google Cloud client library
 const {Translate} = require('@google-cloud/translate').v2;
 // Creates a client
-const translate = new Translate({keyFilename: "../server/googlecloud-apikey.json"});
-// console.log(GOOGLE_APPLICATION_CREDENTIALS);
+const translate = new Translate({credentials: JSON.parse(process.env.credentials)});
 
 // async function listLanguages() {
 //     // Lists available translation language with their names in English (the default).

@@ -10,6 +10,79 @@ let languagesLong = {
     Italian: 'it'
 };
 let languageConjugationStructure = {
+    es: {
+        modes: [
+            {   name: 'Infinitivo', 
+                times: [
+                    {
+                        name: 'infinitivo',
+                        persons: 1
+                    }
+                ]
+            }, 
+            {   name: 'Indicativo', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-imperfecto',
+                        persons: 6
+                    },
+                    {
+                        name: 'futuro',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-perfecto-simple',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Condicional', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Imperativo', 
+                times: [
+                    {
+                        name: 'afirmativo',
+                        persons: 3
+                    },
+                    {
+                        name: 'negativo',
+                        persons: 3
+                    }
+                ]
+            }, 
+            {   name: 'Participo', 
+                times: [
+                    {
+                        name: 'participo',
+                        persons: 1
+                    }
+                ]
+            },
+            {   name: 'Gerundio', 
+                times: [
+                    {
+                        name: 'gerundio',
+                        persons: 1
+                    }
+                ]
+            }
+        ],
+        persons: {
+            1: ['All'], 
+            3: ['tu', 'vosotros', 'ellos'],
+            6: ['yo', 'tu', 'él/ella', 'nosotros', 'vosotros', 'ellos']
+        }
+    },
     fr: {
         modes: [
             {   name: 'Infinitif', 
@@ -83,8 +156,255 @@ let languageConjugationStructure = {
             3: ['tu', 'nous', 'vous'],
             4: ['il', 'ils', 'elle', 'elles']
         }
+    },
+    pt: {
+        modes: [
+            {   name: 'Infinitivo', 
+                times: [
+                    {
+                        name: 'infinitivo-pessoal-presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'infinitivo',
+                        persons: 1
+                    }
+                ]
+            }, 
+            {   name: 'Indicativo', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-imperfeito',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-mais-que-perfeito',
+                        persons: 6
+                    },
+                    {
+                        name: 'futuro-do-presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-perfeito',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Condicional', 
+                times: [
+                    {
+                        name: 'futuro-do-pretérito',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Subjuntivo', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'pretérito-imperfeito',
+                        persons: 6
+                    },
+                    {
+                        name: 'futuro',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Imperativo', 
+                times: [
+                    {
+                        name: 'afirmativo',
+                        persons: 6
+                    },
+                    {
+                        name: 'negativo',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Particípio', 
+                times: [
+                    {
+                        name: 'particípio',
+                        persons: 1
+                    }
+                ]
+            },
+            {   name: 'Gerúndio', 
+                times: [
+                    {
+                        name: 'gerúndio',
+                        persons: 1
+                    }
+                ]
+            }
+        ],
+        persons: {
+            1: ['All'], 
+            6: ['eu', 'tu', 'ele/ela', 'nós', 'vós', 'eles/elas']
+        }
+    },
+    ro: {
+        modes: [
+            {   name: 'Infinitiv', 
+                times: [
+                    {
+                        name: 'afirmativ',
+                        persons: 1
+                    }
+                ]
+            }, 
+            {   name: 'Indicativ', 
+                times: [
+                    {
+                        name: 'prezent',
+                        persons: 6
+                    },
+                    {
+                        name: 'imperfect',
+                        persons: 6
+                    },
+                    {
+                        name: 'mai-mult-ca-perfect',
+                        persons: 6
+                    },
+                    {
+                        name: 'perfect-simplu',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Conjunctiv', 
+                times: [
+                    {
+                        name: 'prezent',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Imperativ', 
+                times: [
+                    {
+                        name: 'imperativ',
+                        persons: 2
+                    },
+                    {
+                        name: 'negativ',
+                        persons: 2
+                    }
+                ]
+            }, 
+            {   name: 'Participiu', 
+                times: [
+                    {
+                        name: 'participiu',
+                        persons: 1
+                    }
+                ]
+            },
+            {   name: 'Gerunziu', 
+                times: [
+                    {
+                        name: 'gerunziu',
+                        persons: 1
+                    }
+                ]
+            }
+        ],
+        persons: {
+            1: ['All'], 
+            2: ['tu', 'voi'],
+            6: ['eu', 'tu', 'el/ea', 'noi', 'voi', 'ei/ele']
+        }
+    },
+    it: {
+        modes: [
+            {   name: 'Infinito', 
+                times: [
+                    {
+                        name: 'gerundio',
+                        persons: 4
+                    }
+                ]
+            }, 
+            {   name: 'Indicativo', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'imperfetto',
+                        persons: 6
+                    },
+                    {
+                        name: 'futuro',
+                        persons: 6
+                    },
+                    {
+                        name: 'passato-remoto',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Condizionale', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Congiuntivo', 
+                times: [
+                    {
+                        name: 'presente',
+                        persons: 6
+                    },
+                    {
+                        name: 'imperfetto',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Imperativo', 
+                times: [
+                    {
+                        name: 'affermativo',
+                        persons: 6
+                    },
+                    {
+                        name: 'negativo',
+                        persons: 6
+                    }
+                ]
+            }, 
+            {   name: 'Participio', 
+                times: [
+                    {
+                        name: 'participio',
+                        persons: 1
+                    }
+                ]
+            }
+        ],
+        persons: {
+            1: ['All'], 
+            4: ['Infinito', 'Gerundio Composto', 'Gerundio Semplice', 'Gerundio Composto'],
+            5: ['All', 'lui', 'lei', 'loro (m)', 'loro (f)'],
+            6: ['io', 'tu', 'lui/lei', 'noi', 'voi', 'loro']
+        }
     }
-}
+};
 
 let conjFile = {};
 let verbFile = {};
