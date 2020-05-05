@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 const VerbPractice = (props) => {
     let conjugationStructure = props.conjugationStructure;
     let conjugatedVerbs = props.conjugatedVerbs;
+    let language = props.language;
+
     let [currentConjugation, setCurrentConjugation] = useState([]);
     let [answerMessage, setAnswerMessage] = useState([]);
     const inputRef = useRef(null);
@@ -15,12 +17,28 @@ const VerbPractice = (props) => {
         if (conjugation === 'Verb not found') return conjugation;
         try {
             let conjugatesAs = conjugation._name.toString();
-            let ending = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
-            let root = verb.replace(ending, '');    
-            // return root.concat(conjugation[mode][time].p[person-1].i[0]); // French, Spanish
-            // return root.concat(conjugation[mode][time].p[person-1].i); // Portuguese
-            // return root.concat(conjugation[mode][time].p[person-1].i.__text); // Italian
-            return root.concat(conjugation[mode][time].p[person-1].i[0].__text); // Romanian
+            let rootEnding = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
+            let root = verb.replace(rootEnding, '');  
+            
+            let ending = '';
+            switch (language.current) {
+                case 'Portuguese':
+                    ending = conjugation[mode][time].p[person-1].i;
+                    break;
+                case 'Spanish': case 'French':
+                    ending = conjugation[mode][time].p[person-1].i[0];
+                    break;
+                case 'Italian':
+                    ending = conjugation[mode][time].p[person-1].i.__text;
+                    break;
+                case 'Romanian':
+                    ending = conjugation[mode][time].p[person-1].i[0].__text;
+                    break;
+                default:
+                    console.log("Error: language not found")
+            }
+
+            return root.concat(ending);
 
         }
         catch {

@@ -118,14 +118,14 @@ export const DocumentEditor = (props) => {
                     </section>
                   </Route>
                   <Route exact path={`/document/${docId}/cheatsheets/verb-conjugation`} >
-                    <VerbConjugation verbsToPractice={verbsToPractice} conjugatedVerbs={conjugatedVerbs}/>
+                    <VerbConjugation verbsToPractice={verbsToPractice} conjugatedVerbs={conjugatedVerbs} language={docLanguage} conjugationStructure={conjugationStructure}/>
                   </Route>
                   <Route exact path={`/document/${docId}/cheatsheets`}>
                     <CheatsheetSummary value={value} />
                   </Route>
 
                   <Route exact path={`/document/${docId}/verbpractice`}>
-                    <VerbPractice conjugationStructure={conjugationStructure} conjugatedVerbs={conjugatedVerbs} setConjugatedVerbs={setConjugatedVerbs}/>
+                    <VerbPractice conjugationStructure={conjugationStructure} conjugatedVerbs={conjugatedVerbs} setConjugatedVerbs={setConjugatedVerbs} language={docLanguage}/>
                   </Route>
 
               </section>            

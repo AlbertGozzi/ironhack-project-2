@@ -53,8 +53,8 @@ const App = () => {
             })}
           </div>
           <div className="submitButtons">
-            <button className="button" onClick={() => setDisplayForm(false)}>Cancel</button>
             <input className="button" type="submit" id="submit"></input>
+            <button className="button" onClick={() => setDisplayForm(false)}>Cancel</button>
           </div>
         </form>
       </section> 

@@ -79,7 +79,9 @@ let languageConjugationStructure = {
         ],
         persons: {
             1: ['All'], 
+            2: ['Gerundio', 'Participio'], 
             3: ['tu', 'vosotros', 'ellos'],
+            5: ['tu', 'él/ella', 'nosotros', 'vosotros', 'ellos'],
             6: ['yo', 'tu', 'él/ella', 'nosotros', 'vosotros', 'ellos']
         }
     },
@@ -167,7 +169,7 @@ let languageConjugationStructure = {
                     },
                     {
                         name: 'infinitivo',
-                        persons: 1
+                        persons: 2
                     }
                 ]
             }, 
@@ -249,7 +251,8 @@ let languageConjugationStructure = {
             }
         ],
         persons: {
-            1: ['All'], 
+            1: ['All'],
+            2: ['Inf/Ger', 'Participio'],
             6: ['eu', 'tu', 'ele/ela', 'nós', 'vós', 'eles/elas']
         }
     },
