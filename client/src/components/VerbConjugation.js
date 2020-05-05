@@ -14,7 +14,7 @@ const VerbConjugation = (props) => {
             console.log(Object.keys(conjugation));
             return <div>
                 {Object.keys(conjugation).map((mode, i) => {
-                    if (mode === "_name") {return <p key={i}><strong>Conjugates as: </strong>{conjugation[mode].replace(':','')}</p>}
+                    if (mode === "_name" ) {return <p key={i}><strong>Conjugates as: </strong>{conjugation[mode].replace(':','')}</p>}
                     let modeConjugation = conjugation[mode];
                     console.log(`Mode`)
                     console.log(modeConjugation)
@@ -22,6 +22,7 @@ const VerbConjugation = (props) => {
                     console.log(Object.keys(modeConjugation))
                     return <span key={i}><strong>{mode}</strong><ul>
                         {Object.keys(modeConjugation).map((time, j) => {
+                            if (time === '_xmlns') { return; }
                             let timeConjugation = modeConjugation[time];
                             console.log(`Time`)
                             console.log(timeConjugation)
@@ -30,7 +31,8 @@ const VerbConjugation = (props) => {
                                 {timeConjugation.p.map((person, k) => {
                                     {/* return <li key={k}>{`${k + 1}: `}{root}{person.i}</li> */} // Portuguese
                                     {/* return <li key={k}>{`${k + 1}: `}{root}{person.i[0]}</li> // Spanish, French */}
-                                    return <li key={k}>{`${k + 1}: `}{root}{person.i.__text}</li> // Italian
+                                    {/* return <li key={k}>{`${k + 1}: `}{root}{person.i.__text}</li> // Italian */}
+                                    return <li key={k}>{`${k + 1}: `}{root}{person.i[0].__text}</li> // Romanian
                                 })}
                             </ul></li>
                         })}

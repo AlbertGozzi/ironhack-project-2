@@ -19,7 +19,8 @@ const VerbPractice = (props) => {
             let root = verb.replace(ending, '');    
             // return root.concat(conjugation[mode][time].p[person-1].i[0]); // French, Spanish
             // return root.concat(conjugation[mode][time].p[person-1].i); // Portuguese
-            return root.concat(conjugation[mode][time].p[person-1].i.__text); // Italian
+            // return root.concat(conjugation[mode][time].p[person-1].i.__text); // Italian
+            return root.concat(conjugation[mode][time].p[person-1].i[0].__text); // Romanian
 
         }
         catch {
