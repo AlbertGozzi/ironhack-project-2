@@ -5,30 +5,11 @@ import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentCard } from './components/DocumentCard';
 import io from 'socket.io-client';
 
-
-const userDocumentsPlaceholderValue = [
-  { 
-    name: 'sampleDoc',
-    language: 'French',
-    createdBy: 'user1'
-  },
-  { 
-    name: 'sampleDocPt',
-    language: 'Portuguese',
-    createdBy: 'user2'
-  },
-  { 
-    name: 'sampleDocIt',
-    language: 'Italian',
-    createdBy: 'user3'
-  }
-];
-
 const supportedLanguages = ['Spanish', 'French', 'Portuguese', 'Italian', 'Romanian'];
 const socket = io('');
 
 const App = () => {
-  const [userDocuments, setUserDocuments] = useState(userDocumentsPlaceholderValue);
+  const [userDocuments, setUserDocuments] = useState([]);
   const [displayForm, setDisplayForm] = useState(false);
 
   const displayDocumentCards = () => {
@@ -51,7 +32,7 @@ const App = () => {
     e.target.reset()
 
     socket.emit('new-document', newDocument)
-    setUserDocuments([...userDocuments, newDocument]);
+    // setUserDocuments([...userDocuments, newDocument]);
   }
 
   const displayNewDocumentForm = () => {
@@ -77,12 +58,40 @@ const App = () => {
     </div>          
   }
 
-  // useEffect(() => {
-  //   return () => {
-  //     console.log("Disconnecting...");
-  //     socket.disconnect();;
-  //   };
-  // })
+  useEffect(() => {
+    console.log('Requesting documents')
+    socket.emit('request-initial-documents', (''));
+
+    socket.on('initial-documents', (documentData) => {
+      let documentsArray = [];
+      Object.keys(documentData).forEach((documentId) => {
+        let document = documentData[documentId];
+        document.uniqueId = documentId;
+        document.createdBy = document.users[0];
+        documentsArray.push(document);
+      });
+      setUserDocuments((userDocuments) => [...userDocuments, ...documentsArray])
+    });
+  }, [])
+
+  useEffect(() => {
+    socket.on(`new-document-from-server`, (data) => {
+      console.log('New document received');
+      // console.log(data);
+      let document = data.document;
+      document.uniqueId = data.id;
+      document.createdBy = document.users[0];
+
+      // console.log(userDocuments);
+      setUserDocuments([...userDocuments, document]);
+      // console.log(userDocuments);
+    });
+
+    return () => {
+      socket.off(`new-document-from-server`);
+    };
+
+  }, [userDocuments])
 
   return (
     <div className="App">

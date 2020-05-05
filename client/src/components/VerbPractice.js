@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const VerbPractice = (props) => {
     let conjugationStructure = props.conjugationStructure;
@@ -9,13 +9,18 @@ const VerbPractice = (props) => {
     const specialCharacters = useRef(null);
 
     const getConjugation = (verb, mode, time, person) => {
+        // console.log(verb)
         let conjugation = conjugatedVerbs[verb];
+        // console.log(conjugation);
         if (conjugation === 'Verb not found') return conjugation;
         try {
             let conjugatesAs = conjugation._name.toString();
             let ending = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
             let root = verb.replace(ending, '');    
-            return root.concat(conjugation[mode][time].p[person-1].i[0]);
+            // return root.concat(conjugation[mode][time].p[person-1].i[0]); // French, Spanish
+            // return root.concat(conjugation[mode][time].p[person-1].i); // Portuguese
+            return root.concat(conjugation[mode][time].p[person-1].i.__text); // Italian
+
         }
         catch {
             return "Loading..."
@@ -25,12 +30,19 @@ const VerbPractice = (props) => {
     const getRandomConjugation = () => {
         if (!conjugationStructure.current.modes) { return }
 
+        // console.log(conjugationStructure.current);
+
         let modes = conjugationStructure.current.modes;
+        // console.log(modes);
         let randomModeIndex = Math.floor(Math.random() * modes.length);
         let randomMode = modes[randomModeIndex];
+        // console.log(randomMode);
 
         let randomTimeIndex = Math.floor(Math.random() * randomMode.times.length);
         let randomTime = randomMode.times[randomTimeIndex];
+
+        // console.log(randomTime)
+        // console.log(conjugationStructure.current.persons);
 
         let randomPerson = Math.floor(Math.random() * randomTime.persons);
         let personName = conjugationStructure.current.persons[randomTime.persons][randomPerson];
@@ -86,10 +98,14 @@ const VerbPractice = (props) => {
         }
     }
 
+    useEffect(() => {
+        setCurrentConjugation(getRandomConjugation());
+    }, [])
+
     return (
         <div >
             <br></br>
-            {displayRandomVerb(getRandomConjugation())}
+            {displayRandomVerb(currentConjugation)}
             <input ref={inputRef} className="verbPracticeInput" placeholder="Your answer here." onKeyPress={event => {if (event.key === 'Enter') {checkAnswer()}}}></input>
             <div className="buttonCheckboxGroup">
                 <button className="button verbPracticeButton" onClick={checkAnswer}>Check Answer</button>

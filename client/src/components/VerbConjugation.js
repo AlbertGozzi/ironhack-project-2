@@ -10,16 +10,27 @@ const VerbConjugation = (props) => {
             let conjugatesAs = conjugation._name.toString();
             let ending = conjugatesAs.slice(conjugatesAs.indexOf(':') + 1); 
             let root = verb.replace(ending, '');
+            console.log(`Modes`)
+            console.log(Object.keys(conjugation));
             return <div>
                 {Object.keys(conjugation).map((mode, i) => {
-                    if (mode === "_name") {return <p><strong>Conjugates as: </strong>{conjugation[mode].replace(':','')}</p>}
+                    if (mode === "_name") {return <p key={i}><strong>Conjugates as: </strong>{conjugation[mode].replace(':','')}</p>}
                     let modeConjugation = conjugation[mode];
-                    return <span><strong>{mode}</strong><ul>
+                    console.log(`Mode`)
+                    console.log(modeConjugation)
+                    console.log(`Times`)
+                    console.log(Object.keys(modeConjugation))
+                    return <span key={i}><strong>{mode}</strong><ul>
                         {Object.keys(modeConjugation).map((time, j) => {
                             let timeConjugation = modeConjugation[time];
-                            return <li>{time}<ul>
+                            console.log(`Time`)
+                            console.log(timeConjugation)
+                            console.log(timeConjugation.p)
+                            return <li key={j}>{time}<ul>
                                 {timeConjugation.p.map((person, k) => {
-                                    return <li>{`${k + 1}: `}{root}{person.i[0]}</li>
+                                    {/* return <li key={k}>{`${k + 1}: `}{root}{person.i}</li> */} // Portuguese
+                                    {/* return <li key={k}>{`${k + 1}: `}{root}{person.i[0]}</li> // Spanish, French */}
+                                    return <li key={k}>{`${k + 1}: `}{root}{person.i.__text}</li> // Italian
                                 })}
                             </ul></li>
                         })}
@@ -27,7 +38,8 @@ const VerbConjugation = (props) => {
                 })}
             <hr></hr></div>;
         }
-        catch {
+        catch (err) {
+            console.log(err);
             return "Loading..."; 
         }
     }
