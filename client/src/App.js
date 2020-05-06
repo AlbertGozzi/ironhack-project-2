@@ -34,7 +34,7 @@ const App = () => {
       console.log(`User connected`);
       setUser(user);
       setLoaded(true);
-      console.log(user);
+      console.log(`User: ${user}`);
     });
   }, []);
 
@@ -55,7 +55,7 @@ const App = () => {
       user: user.uid 
     };
 
-    console.log(newDocument)
+    console.log(`New document: ${newDocument}`)
     
     setDisplayForm(false)
     e.target.reset()
