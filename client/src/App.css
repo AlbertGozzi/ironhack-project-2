@@ -349,3 +349,24 @@ a.active {
 .incorrect {
   background-color: darkred;
 }
+
+.loginTitle {
+  padding: 2em 0 0.5em 0;
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+}
+
+.firebaseui-idp-button {
+  min-width: 16em;
+  height: 5em;
+  padding: 1em;
+  display: flex;
+  align-items: center;
+}
+
+.firebaseui-card-content img {
+  height: 3em;
+  padding-right: 1em;
+}
+

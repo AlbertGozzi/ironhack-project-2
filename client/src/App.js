@@ -1,16 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter, Route} from 'react-router-dom';
+import { BrowserRouter, Route, Link} from 'react-router-dom';
 import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentCard } from './components/DocumentCard';
+import { PrivateRoute } from './components/PrivateRoute';
+import { Main } from './components/Main';
 import io from 'socket.io-client';
+import { firebaseConfig } from './firebaseConfig';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
+const firebase = require('firebase');
 const supportedLanguages = ['Spanish', 'French', 'Portuguese', 'Italian', 'Romanian'];
 const socket = io('');
+
+firebase.initializeApp(firebaseConfig);
+var uiConfig = {
+  signInSuccessUrl: '/',
+  signInFlow: 'popup',
+  signInOptions: [
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.EmailAuthProvider.PROVIDER_ID,
+  ],
+};
 
 const App = () => {
   const [userDocuments, setUserDocuments] = useState([]);
   const [displayForm, setDisplayForm] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    console.log(user);
+    firebase.auth().onAuthStateChanged(function(user) {
+      console.log(`User connected`);
+      setUser(user);
+      setLoaded(true);
+      console.log(user);
+    });
+  }, []);
 
   const displayDocumentCards = () => {
     return userDocuments.map((document, i) => {
@@ -99,19 +126,25 @@ const App = () => {
   return (
     <div className="App">
       <BrowserRouter>
-        <Route exact path ='/'>
-          <section className="allDocumentsTitle">
-            <h2><strong>My Documents</strong></h2>
-            <button className="button" onClick={() => setDisplayForm(true)}>Create new document</button>
+        <PrivateRoute
+          exact
+          path={'/'}
+          component={Main}
+          user={user}
+          loaded={loaded}
+          displayForm={displayForm} 
+          setDisplayForm={setDisplayForm}
+          displayDocumentCards={displayDocumentCards}
+          displayNewDocumentForm={displayNewDocumentForm}
+        />
+        <Route exact path ='/login'>
+          <section className="loginTitle">
+            <h3>Access to the following page requires to log in:</h3>
           </section>
-          <section className="allDocuments">
-            {displayDocumentCards()}
-          </section>
-          {displayForm ? displayNewDocumentForm() : ''}
+          <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
         </Route>
         <Route path="/document/:uniqueId" render={props => <DocumentEditor {...props} socket={socket} />} />
       </BrowserRouter>
-
     </div>   
   );
 }
