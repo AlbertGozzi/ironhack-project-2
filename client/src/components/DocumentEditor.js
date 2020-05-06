@@ -15,12 +15,48 @@ export const DocumentEditor = (props) => {
     const [value, setValue] = useState([]);
     const [verbsToPractice, setVerbsToPractice] = useState([]);
     const [conjugatedVerbs, setConjugatedVerbs] = useState([]);
+    const [displayShare, setDisplayShare] = useState(false);
     const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
     const docId = props.match.params.uniqueId;
     const socket = props.socket;
     const docLanguage = useRef([]);
     const conjugationStructure = useRef([]);
     const documentName = useRef([]);
+
+    const addNewUserToDoc = (e) => {
+      e.preventDefault();
+
+      let data = {
+        docId: docId,
+        userEmail: e.target.usersEmail.value,
+      }
+  
+      console.log(data)
+      
+      setDisplayShare(false)
+      e.target.reset()
+
+      //TODO: Add validation for user existing?
+  
+      socket.emit('new-user-in-document', data)
+    }
+
+    const displayAddUserForm = () => {
+      return <div> 
+        <div className="transparentLayer"></div>
+        <section className="newDocumentForm">
+          <h3>Add a new user to document</h3>
+          <form className="form" onSubmit={addNewUserToDoc} autoComplete="off">
+            <label htmlFor="usersEmail">Users email:</label>
+            <input type="email" id="usersEmail" required></input>
+            <div className="submitButtons">
+              <input className="button" type="submit" id="submit"></input>
+              <button className="button" onClick={() => setDisplayShare(false)}>Cancel</button>
+            </div>
+          </form>
+        </section> 
+      </div>          
+    }
 
     useEffect(() => {
         console.log("Mounting...");
@@ -99,7 +135,7 @@ export const DocumentEditor = (props) => {
               <section className="title">
                 <h4><strong>Document: </strong>{documentName.current}</h4>
                 <h4><strong>Language: </strong>{docLanguage.current}</h4>
-                <button className="button">Share</button>
+                <button className="button" onClick={() => setDisplayShare(true)}>Share</button>
               </section>
               <section className ="navbar">
                   <NavLink to={`/document/${docId}/main`}><h4>Main</h4></NavLink>
@@ -135,6 +171,7 @@ export const DocumentEditor = (props) => {
               <TranslationSideBar docId={docId} value={value} socket={socket}/>
             </Route>
           </div>
+          {displayShare ? displayAddUserForm() : ''}
         </div>  
     );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { BrowserRouter, Route, Link} from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import { DocumentEditor } from './components/DocumentEditor';
 import { DocumentCard } from './components/DocumentCard';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -30,7 +30,6 @@ const App = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    console.log(user);
     firebase.auth().onAuthStateChanged(function(user) {
       console.log(`User connected`);
       setUser(user);
@@ -52,8 +51,11 @@ const App = () => {
       uniqueId: (new Date()).getTime(),
       name: e.target.documentName.value,
       language: e.target.language.value,
-      createdBy: socket.id
+      createdBy: user.email,
+      user: user.uid 
     };
+
+    console.log(newDocument)
     
     setDisplayForm(false)
     e.target.reset()
@@ -89,20 +91,27 @@ const App = () => {
   }
 
   useEffect(() => {
+    if (!user) return;
     console.log('Requesting documents')
-    socket.emit('request-initial-documents', (''));
+    socket.emit('request-initial-documents', user.uid);
 
     socket.on('initial-documents', (documentData) => {
       let documentsArray = [];
       Object.keys(documentData).forEach((documentId) => {
         let document = documentData[documentId];
         document.uniqueId = documentId;
-        document.createdBy = document.users[0];
         documentsArray.push(document);
       });
-      setUserDocuments((userDocuments) => [...userDocuments, ...documentsArray])
+      setUserDocuments([...documentsArray])
     });
-  }, [])
+  }, [user])
+
+  // TODO replace once the proper admin interface in the server has been set up
+  useEffect(() => {
+    if (!user) return;
+    console.log('Sending user data')
+    socket.emit('new-user', user);
+  }, [user])
 
   useEffect(() => {
     socket.on(`new-document-from-server`, (data) => {
@@ -110,7 +119,6 @@ const App = () => {
       // console.log(data);
       let document = data.document;
       document.uniqueId = data.id;
-      document.createdBy = document.users[0];
 
       // console.log(userDocuments);
       setUserDocuments([...userDocuments, document]);
