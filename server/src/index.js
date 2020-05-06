@@ -63,16 +63,31 @@ const initialEditorValue = {
 }
 
 const documentsData = {};
+const userDocuments = {};
+//TODO: replace for proper connection to firebase via API
+// https://firebase.google.com/docs/admin/setup
+// https://firebase.google.com/docs/auth/admin/manage-users
+const userDatabase = {};
 
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
+
+    // TODO: replace for proper connection to firebase via API
+    socket.on('new-user', (user) => {
+      let userId = user.uid;
+      let email = user.email;
+
+      userDatabase[email] = userId;
+
+    });
 
     socket.on('new-document', (newDocument) => {
       let uniqueId = newDocument.uniqueId;
       let name = newDocument.name;
       let language = newDocument.language;
       let languageCode = conjugator.languagesLong[language];
-      let initialUser = newDocument.createdBy;
+      let createdBy = newDocument.createdBy;
+      let initialUser = newDocument.user;
       console.log(`---`);
       console.log(`New document: ${uniqueId}`);
 
@@ -86,15 +101,42 @@ io.on('connection', (socket) => {
       documentsData[uniqueId].translations = {};
       documentsData[uniqueId].conjugations = {};
       documentsData[uniqueId].value = initialEditorValue[languageCode];
+      documentsData[uniqueId].createdBy = createdBy;
       documentsData[uniqueId].users = [];
       documentsData[uniqueId].users.push(initialUser);
 
-      io.emit('new-document-from-server', {document: documentsData[uniqueId], id: uniqueId})
+      //Push ID to users documents
+      if (!userDocuments[initialUser]) {userDocuments[initialUser] = [];}
+      userDocuments[initialUser].push(uniqueId);
+
+      io.to(socket.id).emit('new-document-from-server', {document: documentsData[uniqueId], id: uniqueId})
     });
 
-    socket.on('request-initial-documents', () => {
+    socket.on('new-user-in-document', (data) => {
+      let docId = data.docId;
+      let userEmail = data.userEmail;
+      let userId = userDatabase[userEmail];
+
+      console.log(`New user added to document ${docId}`);
+      
+      //Push ID to users documents
+      if (!userDocuments[userId]) {userDocuments[userId] = [];}
+      userDocuments[userId].push(docId);
+      
+    });
+
+    socket.on('request-initial-documents', (userId) => {
       console.log('New user requests documents');
-      io.to(socket.id).emit('initial-documents', documentsData);
+      
+      // Do nothing if user has no documents
+      if (userDocuments[userId]) { 
+        let usersDocuments = {};
+        userDocuments[userId].forEach(documentId => {
+          usersDocuments[documentId] = documentsData[documentId]
+        }) 
+        io.to(socket.id).emit('initial-documents', usersDocuments);
+      };
+
     });
 
     socket.on('request-initial-data', (docId) => {
