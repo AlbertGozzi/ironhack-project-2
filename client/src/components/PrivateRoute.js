@@ -10,8 +10,6 @@ const override = css`
 `;
 
 export const PrivateRoute = ({component: Component, user, loaded, displayForm, setDisplayForm, displayDocumentCards, displayNewDocumentForm,  ...rest}) => {
-    // console.log(user);
-    // console.log(!!user);
     
     return (
         <Route {...rest} render={props => (
@@ -25,7 +23,6 @@ export const PrivateRoute = ({component: Component, user, loaded, displayForm, s
                     css={override}
                     size={100}
                     color={'#ffffff'}
-                    // loading={}
                     />
                 </div>
                 )  

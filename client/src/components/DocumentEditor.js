@@ -23,80 +23,47 @@ export const DocumentEditor = (props) => {
     const conjugationStructure = useRef([]);
     const documentName = useRef([]);
 
-    const addNewUserToDoc = (e) => {
-      e.preventDefault();
-
-      let data = {
-        docId: docId,
-        userEmail: e.target.usersEmail.value,
-      }
-  
-      console.log(data)
-      
-      setDisplayShare(false)
-      e.target.reset()
-
-      //TODO: Add validation for user existing?
-  
-      socket.emit('new-user-in-document', data)
-    }
-
-    const displayAddUserForm = () => {
-      return <div> 
-        <div className="transparentLayer"></div>
-        <section className="newDocumentForm">
-          <h3>Add a new user to document</h3>
-          <form className="form" onSubmit={addNewUserToDoc} autoComplete="off">
-            <label htmlFor="usersEmail">Users email:</label>
-            <input type="email" id="usersEmail" required></input>
-            <div className="submitButtons">
-              <input className="button" type="submit" id="submit"></input>
-              <button className="button" onClick={() => setDisplayShare(false)}>Cancel</button>
-            </div>
-          </form>
-        </section> 
-      </div>          
-    }
-
+    // On connection, request initial data and add listener for new operations in other editors
     useEffect(() => {
-        console.log("Mounting...");
-        
-        socket.emit('request-initial-data', docId);
+      console.log("Mounting...");
       
-        socket.on(`initial-value-${docId}`, (data) => {
-          console.log('Initial value received');
-          setValue(data.value);
-          conjugationStructure.current = data.languageConjugationStructure;
-          documentName.current = data.name;
-          docLanguage.current = data.language;
-        });
+      socket.emit('request-initial-data', docId);
     
-        socket.on(`new-remote-operations-${docId}`, ({editorId, ops, value}) => {
-          if (socket.id !== editorId) {
-            console.log('Receiving operation');
-            try {
-              console.log('Trying to apply operation - Remote');
-              ops.forEach(op => editor.apply(op));
-            } 
+      socket.on(`initial-value-${docId}`, (data) => {
+        console.log('Initial value received');
+        setValue(data.value);
+        conjugationStructure.current = data.languageConjugationStructure;
+        documentName.current = data.name;
+        docLanguage.current = data.language;
+      });
+  
+      socket.on(`new-remote-operations-${docId}`, ({editorId, ops, value}) => {
+        if (socket.id !== editorId) {
+          console.log('Receiving operation');
+          try {
+            console.log('Trying to apply operation - Remote');
+            ops.forEach(op => editor.apply(op));
+          } 
+          catch (err) {
+            console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
+            try { 
+              setValue(value);
+            }
             catch (err) {
-              console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
-              try { 
-                setValue(value);
-              }
-              catch (err) {
-                console.log(`Error. Too many operations at the same time! ${err}`)
-              }
+              console.log(`Error. Too many operations at the same time! ${err}`)
             }
           }
-        });
-    
-        return () => {
-          console.log("Unmounting...");
-          socket.off(`initial-value-${docId}`);
-          socket.off(`new-remote-operations-${docId}`);
-        };
+        }
+      });
+  
+      return () => {
+        console.log("Unmounting...");
+        socket.off(`initial-value-${docId}`);
+        socket.off(`new-remote-operations-${docId}`);
+      };
     }, [docId, editor, socket]);
-
+  
+    // Every time a new verb is received, add it to the verbsToPractice array
     useEffect(() => {
       let verbsToPracticeValue = [];
       value.forEach((text,i) => {
@@ -113,24 +80,61 @@ export const DocumentEditor = (props) => {
               }
           });
       });
-
       setVerbsToPractice([...verbsToPracticeValue]);
 
     }, [value, docId, conjugatedVerbs, setVerbsToPractice, socket]);
 
+    // Every time a new verb is received, add it to the conjugatedVerbs array
     useEffect(() => {
-        socket.on(`new-conjugation-data-${docId}`, (serverConjugations) => {
-            console.log('Conjugations received');
-            // console.log(serverConjugations);
-            setConjugatedVerbs(serverConjugations);
-        });
+      socket.on(`new-conjugation-data-${docId}`, (serverConjugations) => {
+          console.log('Conjugations received');
+          // console.log(serverConjugations);
+          setConjugatedVerbs(serverConjugations);
+      });
     }, [docId, setConjugatedVerbs, socket]);
+
+    // Display the form to add a new user after pressing the 'Share' button
+    const displayAddUserForm = () => {
+      return <div> 
+        <div className="transparentLayer"></div>
+        <section className="newDocumentForm">
+          <h3>Add a new user to document</h3>
+          <form className="form" onSubmit={addNewUserToDoc} autoComplete="off">
+            <label htmlFor="usersEmail">Users email:</label>
+            <input type="email" id="usersEmail" required></input>
+            <div className="submitButtons">
+              <input className="button" type="submit" id="submit"></input>
+              <button className="button" onClick={() => setDisplayShare(false)}>Cancel</button>
+            </div>
+          </form>
+        </section> 
+      </div>          
+    }
+    
+    // Manage the addition of a new user after a person submits the new user form from 'Share'
+    const addNewUserToDoc = (e) => {
+      e.preventDefault();
+
+      let data = {
+        docId: docId,
+        userEmail: e.target.usersEmail.value,
+      }
+        
+      setDisplayShare(false)
+      e.target.reset()
+
+      //TODO: Add validation for user existing?
+
+      socket.emit('new-user-in-document', data)
+    }
     
     return (
         <div>
+
           <div className="leftPanel">
             <Link to={`/`}><p><span>&#8592; </span>to All Documents</p></Link>
           </div>
+
           <div className="main">
               <section className="title">
                 <h4><strong>Document: </strong>{documentName.current}</h4>
@@ -166,12 +170,15 @@ export const DocumentEditor = (props) => {
 
               </section>            
           </div>
+          
           <div className="rightPanel">
             <Route exact path={`/document/${docId}/main`}>
               <TranslationSideBar docId={docId} value={value} socket={socket}/>
             </Route>
           </div>
+
           {displayShare ? displayAddUserForm() : ''}
+          
         </div>  
     );
 };

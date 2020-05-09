@@ -9,10 +9,10 @@ import io from 'socket.io-client';
 import { firebaseConfig } from './firebaseConfig';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
-const firebase = require('firebase');
 const supportedLanguages = ['Spanish', 'French', 'Portuguese', 'Italian', 'Romanian'];
-const socket = io('');
 
+// Firebase configuration
+const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
 var uiConfig = {
   signInSuccessUrl: '/',
@@ -23,47 +23,56 @@ var uiConfig = {
   ],
 };
 
+const socket = io('');
+
 const App = () => {
   const [userDocuments, setUserDocuments] = useState([]);
   const [displayForm, setDisplayForm] = useState(false);
   const [user, setUser] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
+  // Set up a listener to update the value of the 'User' state whenever a user connects
   useEffect(() => {
     firebase.auth().onAuthStateChanged(function(user) {
       console.log(`User connected`);
       setUser(user);
       setLoaded(true);
-      console.log(`User: ${user}`);
     });
   }, []);
 
+  // When a new user connects, send the user data to the server to have a list with all the users
+  // TODO replace once the proper admin interface in the server has been set up
+  useEffect(() => {
+    if (!user) return;
+    console.log('Sending user data')
+    socket.emit('new-user', user);
+  }, [user])
+
+  // When a user connects, send a new message to the server to retrieve all the documents for that user
+  useEffect(() => {
+    if (!user) return;
+    console.log('Requesting documents')
+    socket.emit('request-initial-documents', user.uid);
+
+    socket.on('initial-documents', (documentData) => {
+      let documentsArray = [];
+      Object.keys(documentData).forEach((documentId) => {
+        let document = documentData[documentId];
+        document.uniqueId = documentId;
+        documentsArray.push(document);
+      });
+      setUserDocuments([...documentsArray])
+    });
+  }, [user])
+
+  // Displays all the documents in the main site
   const displayDocumentCards = () => {
     return userDocuments.map((document, i) => {
       return <DocumentCard key={i} document={document}></DocumentCard>
     })
   };
 
-  const createNewDocument = (e) => {
-    e.preventDefault();
-
-    let newDocument = { 
-      uniqueId: (new Date()).getTime(),
-      name: e.target.documentName.value,
-      language: e.target.language.value,
-      createdBy: user.email,
-      user: user.uid 
-    };
-
-    console.log(`New document: ${newDocument}`)
-    
-    setDisplayForm(false)
-    e.target.reset()
-
-    socket.emit('new-document', newDocument)
-    // setUserDocuments([...userDocuments, newDocument]);
-  }
-
+  // Displays the JSX for the new document form
   const displayNewDocumentForm = () => {
     return <div> 
       <div className="transparentLayer"></div>
@@ -89,30 +98,29 @@ const App = () => {
       </section> 
     </div>          
   }
+  
+  // Creates new document once the submit button is clicked in the new document form
+  const createNewDocument = (e) => {
+    e.preventDefault();
 
-  useEffect(() => {
-    if (!user) return;
-    console.log('Requesting documents')
-    socket.emit('request-initial-documents', user.uid);
+    let newDocument = { 
+      uniqueId: (new Date()).getTime(),
+      name: e.target.documentName.value,
+      language: e.target.language.value,
+      createdBy: user.email,
+      user: user.uid 
+    };
 
-    socket.on('initial-documents', (documentData) => {
-      let documentsArray = [];
-      Object.keys(documentData).forEach((documentId) => {
-        let document = documentData[documentId];
-        document.uniqueId = documentId;
-        documentsArray.push(document);
-      });
-      setUserDocuments([...documentsArray])
-    });
-  }, [user])
+    console.log(`New document: ${newDocument}`)
+    
+    setDisplayForm(false)
+    e.target.reset()
 
-  // TODO replace once the proper admin interface in the server has been set up
-  useEffect(() => {
-    if (!user) return;
-    console.log('Sending user data')
-    socket.emit('new-user', user);
-  }, [user])
+    socket.emit('new-document', newDocument)
+    // setUserDocuments([...userDocuments, newDocument]);
+  }
 
+  // After creating a new document and sending data to server, handle the response from the server (which appended extra information such as conjugations)
   useEffect(() => {
     socket.on(`new-document-from-server`, (data) => {
       console.log('New document received');
@@ -134,6 +142,8 @@ const App = () => {
   return (
     <div className="App">
       <BrowserRouter>
+
+        {/* Main route that displays all the documents */}
         <PrivateRoute
           exact
           path={'/'}
@@ -145,13 +155,18 @@ const App = () => {
           displayDocumentCards={displayDocumentCards}
           displayNewDocumentForm={displayNewDocumentForm}
         />
+
+        {/* Simple login page with firebase UI */}
         <Route exact path ='/login'>
           <section className="loginTitle">
             <h3>Access to the following page requires to log in:</h3>
           </section>
           <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
         </Route>
+
+        {/* Route for each individual document */}
         <Route path="/document/:uniqueId" render={props => <DocumentEditor {...props} socket={socket} />} />
+        
       </BrowserRouter>
     </div>   
   );

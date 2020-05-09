@@ -8,26 +8,20 @@ let socketIO = require('socket.io');
 const conjugator = require('./conjugate.js');
 const translator = require('./translate.js');
 
-// Renaming
+// Setting up server
 let app = express();
 let server = http.Server(app);
-let io = socketIO(server);
-
-// For deployment
 app.use(express.static(path.join(__dirname, '../../client/build')));
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../client/build/', 'index.html'));
 });
-
-// Set port for Heroku
 let port = process.env.PORT;
 if (port == null || port == "") {port = 5000;}
 app.set('port', port);
-
-// Starts the server.
 server.listen(port, function() {
     console.log(`Starting server on port ${port}`);
 });
+
 
 const initialEditorValue = {
   es: [
@@ -62,6 +56,7 @@ const initialEditorValue = {
   ]
 }
 
+// Local 'database'
 const documentsData = {};
 const userDocuments = {};
 //TODO: replace for proper connection to firebase via API
@@ -69,6 +64,8 @@ const userDocuments = {};
 // https://firebase.google.com/docs/auth/admin/manage-users
 const userDatabase = {};
 
+// Socket connection
+let io = socketIO(server);
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
 
@@ -82,17 +79,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('new-document', (newDocument) => {
-      let uniqueId = newDocument.uniqueId;
-      let name = newDocument.name;
-      let language = newDocument.language;
+      let {uniqueId, name, language, createdBy, user} = newDocument;
       let languageCode = conjugator.languagesLong[language];
-      let createdBy = newDocument.createdBy;
-      let initialUser = newDocument.user;
+
       console.log(`---`);
       console.log(`New document: ${uniqueId}`);
 
       //Create entry
-      documentsData[uniqueId] = {};
       documentsData[uniqueId] = {};
       documentsData[uniqueId].name = name;
       documentsData[uniqueId].language = language;
@@ -103,11 +96,11 @@ io.on('connection', (socket) => {
       documentsData[uniqueId].value = initialEditorValue[languageCode];
       documentsData[uniqueId].createdBy = createdBy;
       documentsData[uniqueId].users = [];
-      documentsData[uniqueId].users.push(initialUser);
+      documentsData[uniqueId].users.push(user);
 
       //Push ID to users documents
-      if (!userDocuments[initialUser]) {userDocuments[initialUser] = [];}
-      userDocuments[initialUser].push(uniqueId);
+      if (!userDocuments[user]) {userDocuments[user] = [];}
+      userDocuments[user].push(uniqueId);
 
       io.to(socket.id).emit('new-document-from-server', {document: documentsData[uniqueId], id: uniqueId})
     });
@@ -160,8 +153,6 @@ io.on('connection', (socket) => {
 
       translator.translateTextWithModel(text, 'en').then(res => {
         documentsData[docId].translations[text] = res;
-        // console.log(`--New text to translate--`)
-        // console.log(JSON.stringify(documentsData[docId].translations))
         io.emit(`new-translation-data-${docId}`, documentsData[docId].translations)  
       });
     })
@@ -175,11 +166,7 @@ io.on('connection', (socket) => {
       let conjugation = conjugator.fullConjugation(languageCode, verb);
       documentsData[docId].conjugations[verb] = conjugation;
 
-      // Old version
-      // if (!conjugation) { documentsData[docId].conjugations[verb] = 'Verb not found' }
-      // io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations)  
       if (conjugation) { io.emit(`new-conjugation-data-${docId}`, documentsData[docId].conjugations) }
-
     })
 
     socket.on('disconnect', (reason) => {
