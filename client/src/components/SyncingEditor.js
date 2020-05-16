@@ -23,12 +23,8 @@ export const SyncingEditor = (props) => {
         value={props.value}
         onChange={value => {
           console.log('Applied operation - Locally')
-          try {
-            props.setValue(value);
-          }
-          catch (err) {
-            console.log(`Error. Too many operations at the same time! ${err}`)
-          }
+          props.setValue(value);
+
           let isRemoteOperation = [...props.editor.operations].map(op => op.source).join('').length !== 0;
           if (!isRemoteOperation) {
             // Create object to emit
@@ -37,7 +33,7 @@ export const SyncingEditor = (props) => {
                 if (o) {
                   return (
                     o.type !== "set_selection" &&
-                    o.type !== "set_value" &&
+                    // o.type !== "set_value" &&
                     !o.source
                   );
                 }

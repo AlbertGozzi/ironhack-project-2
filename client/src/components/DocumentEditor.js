@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, NavLink, Route } from 'react-router-dom';
-import { createEditor } from 'slate';
+import { createEditor, Editor } from 'slate';
 import { withReact} from 'slate-react';
 import { withHistory } from 'slate-history';
 import { withHtml } from './withHtml';
@@ -17,7 +17,7 @@ export const DocumentEditor = (props) => {
     const [conjugatedVerbs, setConjugatedVerbs] = useState([]);
     const [displayShare, setDisplayShare] = useState(false);
     const editor = useMemo(() => withHistory(withHtml(withReact(createEditor()))), [])
-    const docId = props.match.params.uniqueId;
+    const docId = props.match.params.docId;
     const socket = props.socket;
     const docLanguage = useRef([]);
     const conjugationStructure = useRef([]);
@@ -41,17 +41,14 @@ export const DocumentEditor = (props) => {
         if (socket.id !== editorId) {
           console.log('Receiving operation');
           try {
-            console.log('Trying to apply operation - Remote');
-            ops.forEach(op => editor.apply(op));
+            console.log('Applying operation - Remote');
+            Editor.withoutNormalizing(editor, () => {
+              ops.forEach(op => editor.apply(op));
+            })
           } 
           catch (err) {
-            console.log('Tying to apply operation - Remote - Hardcoded'); //TODO Review
-            try { 
-              setValue(value);
-            }
-            catch (err) {
-              console.log(`Error. Too many operations at the same time! ${err}`)
-            }
+            console.log('Hardcoding operation - Remote'); //TODO Review
+            setValue(value);
           }
         }
       });
@@ -74,7 +71,8 @@ export const DocumentEditor = (props) => {
               if (!conjugatedVerbs[verb]) {
                   let data = {
                       verb: verb,
-                      docId: docId
+                      docId: docId,
+                      language: docLanguage.current
                   }
                   socket.emit('new-verb-to-conjugate', data);
               }

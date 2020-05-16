@@ -58,7 +58,6 @@ const App = () => {
       let documentsArray = [];
       Object.keys(documentData).forEach((documentId) => {
         let document = documentData[documentId];
-        document.uniqueId = documentId;
         documentsArray.push(document);
       });
       setUserDocuments([...documentsArray])
@@ -104,7 +103,6 @@ const App = () => {
     e.preventDefault();
 
     let newDocument = { 
-      uniqueId: (new Date()).getTime(),
       name: e.target.documentName.value,
       language: e.target.language.value,
       createdBy: user.email,
@@ -124,9 +122,8 @@ const App = () => {
   useEffect(() => {
     socket.on(`new-document-from-server`, (data) => {
       console.log('New document received');
-      // console.log(data);
+      console.log(data);
       let document = data.document;
-      document.uniqueId = data.id;
 
       // console.log(userDocuments);
       setUserDocuments([...userDocuments, document]);
@@ -165,7 +162,7 @@ const App = () => {
         </Route>
 
         {/* Route for each individual document */}
-        <Route path="/document/:uniqueId" render={props => <DocumentEditor {...props} socket={socket} />} />
+        <Route path="/document/:docId" render={props => <DocumentEditor {...props} socket={socket} />} />
         
       </BrowserRouter>
     </div>   
