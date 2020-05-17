@@ -1,16 +1,18 @@
 // Dependencies
+require('dotenv').config()
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIO = require('socket.io');
 const mongoose = require('mongoose');
+const admin = require('firebase-admin');
+const serviceAccount = JSON.parse(process.env.service_account);
 
 // Local Imports
 const conjugator = require('./conjugate.js');
 const translator = require('./translate.js');
 const Document = require('../models/Document.js')
-
-const MONGODB_URI = 'mongodb://localhost:27017/languages-app';
+const User = require('../models/User.js')
 
 // Setting up server
 const app = express();
@@ -21,7 +23,6 @@ app.get('/*', (req, res) => {
 });
 
 let port = process.env.PORT;
-if (port == null || port == "") {port = 5000;}
 app.set('port', port);
 server.listen(port, function() {
     console.log(`Starting server on port ${port}`);
@@ -29,7 +30,7 @@ server.listen(port, function() {
 
 // Connect to database
 mongoose
-  .connect(MONGODB_URI, {
+  .connect(process.env.MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -43,6 +44,42 @@ mongoose
     console.error('Error connecting to the database', error);
   });
 
+// Connect to firebase database
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://ironhack-project-1588001243753.firebaseio.com"
+});
+
+// function listAllUsers(nextPageToken) {
+//   // List batch of users, 1000 at a time.
+//   admin.auth().listUsers(1000, nextPageToken)
+//     .then(function(listUsersResult) {
+//       listUsersResult.users.forEach(function(userRecord) {
+//         // console.log('user', userRecord.toJSON());
+//         console.log('user', userRecord.email);
+//       });
+//       if (listUsersResult.pageToken) {
+//         // List next batch of users.
+//         listAllUsers(listUsersResult.pageToken);
+//       }
+//     })
+//     .catch(function(error) {
+//       console.log('Error listing users:', error);
+//     });
+// }
+// // Start listing users from the beginning, 1000 at a time.
+// listAllUsers();
+
+// 5JBM1D8jiWROD6sD7J195S8ghfs1
+
+// admin.auth().getUser('5JBM1D8jiWROD6sD7J195S8ghfs1')
+//   .then(function(userRecord) {
+//     // See the UserRecord reference doc for the contents of userRecord.
+//     console.log('Successfully fetched user data:', userRecord.toJSON());
+//   })
+//   .catch(function(error) {
+//     console.log('Error fetching user data:', error);
+//   });
 
 const initialEditorValue = {
   es: [
@@ -77,26 +114,10 @@ const initialEditorValue = {
   ]
 }
 
-// Local 'database'
-const userDocuments = {};
-//TODO: replace for proper connection to firebase via API
-// https://firebase.google.com/docs/admin/setup
-// https://firebase.google.com/docs/auth/admin/manage-users
-const userDatabase = {};
-
 // Socket connection
 let io = socketIO(server);
 io.on('connection', (socket) => {
     console.log(`Connected ${socket.id}`);
-
-    // TODO: replace for proper connection to firebase via API
-    socket.on('new-user', (user) => {
-      let userId = user.uid;
-      let email = user.email;
-
-      userDatabase[email] = userId;
-
-    });
 
     socket.on('new-document', (newDocument) => {
       let {name, language, createdBy, user} = newDocument;
@@ -121,9 +142,22 @@ io.on('connection', (socket) => {
         .then(document => {
           io.to(socket.id).emit('new-document-from-server', {document: document})
 
-          //Push ID to users documents
-          if (!userDocuments[user]) {userDocuments[user] = [];}
-          userDocuments[user].push(document._id);
+          // Add document to user, creating user if not previously created
+          User.findById(user)
+            .then(dbUser => {
+              if(!dbUser) {
+                let newUser = {
+                  _id: user,
+                  email: createdBy,
+                  documents: [document._id]
+                }
+                User.create(newUser)
+              } else {
+                dbUser.documents.push(document._id);
+                dbUser.save();
+              }
+            })
+            .catch(err => console.error(err))
 
         })
         .catch(err => console.log(err))
@@ -134,36 +168,61 @@ io.on('connection', (socket) => {
     socket.on('new-user-in-document', (data) => {
       let docId = data.docId;
       let userEmail = data.userEmail;
-      let userId = userDatabase[userEmail];
 
       console.log(`New user added to document ${docId}`);
-      
-      //Push ID to users documents
-      if (!userDocuments[userId]) {userDocuments[userId] = [];}
-      userDocuments[userId].push(docId);
+
+      // Push ID to users' documents, creating it if it doesn't exist already
+      admin.auth().getUserByEmail(userEmail)
+        .then((userRecord) => {
+
+          User.findById(userRecord.uid)
+            .then(user => {
+              if(!user) {
+                let newUser = {
+                  _id: userRecord.uid,
+                  email: userEmail,
+                  documents: [docId]
+                }
+                User.create(newUser)
+              } else {
+                user.documents.push(docId);
+                user.save();
+              }
+            })
+            .catch(err => console.error(err))
+          
+        })
+        .catch((error) => {
+          console.log('Error fetching user data:', error);
+        });
       
     });
 
     socket.on('request-initial-documents', (userId) => {
       console.log('New user requests documents');
+
+      User.findById(userId)
+        .then(user => {
+          
+          // Do nothing if user has no documents
+          if (user.documents) { 
+
+            let documentsPromises = user.documents.map(documentId => {
+              return Document.findById(documentId);
+            }) 
+    
+            Promise.all([...documentsPromises])
+              .then(documents => {
+                let allDocuments = {}
+                documents.forEach(document => {
+                  allDocuments[document._id] = document;              
+                });
+                io.to(socket.id).emit('initial-documents', allDocuments)
+              })
+              .catch(err => console.log(err))
+          }   
+        })
       
-      // Do nothing if user has no documents
-      if (userDocuments[userId]) { 
-        let usersDocuments = {};
-
-        let documentsPromises = userDocuments[userId].map(documentId => {
-          return Document.findById(documentId);
-        }) 
-
-        Promise.all([...documentsPromises])
-          .then(documents => {
-            documents.forEach(document => {
-              usersDocuments[document._id] = document              
-            });
-            io.to(socket.id).emit('initial-documents', usersDocuments)
-          })
-          .catch(err => console.log(err))
-      }
     });
 
     socket.on('request-initial-data', (docId) => {

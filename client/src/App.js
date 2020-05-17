@@ -40,14 +40,6 @@ const App = () => {
     });
   }, []);
 
-  // When a new user connects, send the user data to the server to have a list with all the users
-  // TODO replace once the proper admin interface in the server has been set up
-  useEffect(() => {
-    if (!user) return;
-    console.log('Sending user data')
-    socket.emit('new-user', user);
-  }, [user])
-
   // When a user connects, send a new message to the server to retrieve all the documents for that user
   useEffect(() => {
     if (!user) return;
